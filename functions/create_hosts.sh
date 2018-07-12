@@ -30,27 +30,7 @@ function create_edge_hosts {
   do
     cat >> edge_vms <<-EOF
 edge-${count} ip=$edge_ip hostname=${edge_hostname_prefix_int}-${count} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}
-# ${NSX_T_EDGE_HOST_PREFIX}-0${count}  \
-#   ansible_ssh_host=$edge_ip \
-#   ansible_ssh_user=root \
-#   ansible_ssh_pass=$NSX_T_EDGE_ROOT_PWD \
-#   vcenter_host="$VCENTER_HOST" \
-#   vcenter_user="$VCENTER_USR" \
-#   vcenter_pwd="$VCENTER_PWD" \
-#   dc="$VCENTER_DATACENTER" \
-#   datastore="$VCENTER_DATASTORE" \
-#   cluster="$VCENTER_CLUSTER" \
-#   resource_pool="$VCENTER_RP" \
-#   dns_server="$DNSSERVER" \
-#   dns_domain="$DNSDOMAIN" \
-#   ntp_server="$NTPSERVERS" \
-#   gw=$DEFAULTGATEWAY \
-#   mask=$NETMASK \
-#   vmname="${NSX_T_EDGE_VM_NAME_PREFIX}-0${count}" \
-#   hostname="${NSX_T_EDGE_HOST_PREFIX}-0${count}" \
-#   portgroup="$MGMT_PORTGROUP" \
-#   portgroupExt="$NSX_T_EDGE_PORTGROUP_EXT" \
-#   portgroupTransport="$NSX_T_EDGE_PORTGROUP_TRANSPORT"
+
 EOF
     (( count++ ))
   done
