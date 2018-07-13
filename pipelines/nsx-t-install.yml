@@ -210,7 +210,8 @@ resources:
 - name: nsxt-ansible
   type: git
   source:
-    uri: https://github.com/vmware/ansible-for-nsxt.git
+    # uri: https://github.com/vmware/ansible-for-nsxt.git
+    uri: git@github.com:vmware/ansible-for-nsxt.git
     branch: master
     private_key: ((ansible_for_nsxt_key))
 
