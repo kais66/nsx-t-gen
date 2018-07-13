@@ -26,7 +26,7 @@ fi
 
 create_hosts
 
-cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml nsxt-ansible/.
+# cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml nsxt-ansible/.
 cd nsxt-ansible
 
 echo ""
