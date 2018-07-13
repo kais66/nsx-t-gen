@@ -27,9 +27,8 @@ fi
 create_hosts
 
 # cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml nsxt-ansible/.
+cp hosts nsxt-ansible/
 cd nsxt-ansible
-
-echo ""
 
 NO_OF_CONTROLLERS=$(curl -k -u "admin:$nsx_manager_password_int" \
                     https://${nsx_manager_ip_int}/api/v1/cluster/nodes \
@@ -39,8 +38,11 @@ if [ "$NO_OF_CONTROLLERS" -lt 2 ]; then
   exit -1
 fi
 
-#ansible-playbook $DEBUG -i hosts basic_resources.yml
+ansible-playbook $DEBUG -i hosts ${PIPELINE_DIR}/tasks/add-nsx-t-routers/basic_resources.yml
 STATUS=$?
+
+# for debug
+sleep 6000
 
 echo ""
 
