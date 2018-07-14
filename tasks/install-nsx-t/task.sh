@@ -96,17 +96,17 @@ if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o
 	echo ""
 
 	install_ovftool
-	copy_ovas_to_OVA_ISO_PATH
-	create_customize_ova_params
+# 	copy_ovas_to_OVA_ISO_PATH
+# 	create_customize_ova_params
 
-	# TODO: whether it's needed to customize
-	if [ "$NSX_T_KEEP_RESERVATION" != "true" ]; then
-		echo "Reservation turned off, customizing the ovas to turn off reservation!!"
-		echo ""
-		# ansible-playbook $DEBUG -i localhost customize_ovas.yml -e @customize_ova_vars.yml
-		echo ""
-	fi
-fi
+# 	# TODO: whether it's needed to customize
+# 	if [ "$NSX_T_KEEP_RESERVATION" != "true" ]; then
+# 		echo "Reservation turned off, customizing the ovas to turn off reservation!!"
+# 		echo ""
+# 		# ansible-playbook $DEBUG -i localhost customize_ovas.yml -e @customize_ova_vars.yml
+# 		echo ""
+# 	fi
+# fi
 
 # debug
 sleep 6000

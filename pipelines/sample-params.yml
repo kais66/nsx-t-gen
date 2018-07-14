@@ -39,14 +39,14 @@ netmask: 255.255.255.0
 # path_to_ova: "http://build-squid.eng.vmware.com/build/mts/release/bora-8968195/publish/nsx-unified-appliance/exports/ova/"
 nsx_image_webserver: "http://10.33.75.99:40001"
 ova_file_name: "nsx-unified-appliance-2.2.0.0.1.8968271.ova"
-ovftool_file_name: "VMware-ovftool-4.3.0-8961634-lin.i386.bundle"
+ovftool_file_name: "VMware-ovftool-4.3.0-9158644-lin.x86_64.bundle"
 
 nsx_manager_ip: 10.40.0.20
 nsx_manager_username: admin
 nsx_manager_password: Admin!23Admin
 nsx_manager_assigned_hostname: "nsxt-manager-10" # Set as FQDN, will be used also as certificate common name
 nsx_manager_root_pwd: VMware1!    # Min 8 chars, upper, lower, number, special digit
-nsx_manager_deploy_size: small   # Recommended for real barebones demo, smallest setup
+nsx_manager_deployment_size: small   # Recommended for real barebones demo, smallest setup
 
 compute_manager_username: "Administrator@vsphere.local"
 compute_manager_password: "Admin!23"
@@ -77,6 +77,7 @@ controller_deployment_size: "MEDIUM"
 # where to create controllers
 controller_compute_id: "domain-c25"
 controller_storage_id: "datastore-30"
+controller_management_network_id: "network-33"
 controller_shared_secret: "Admin!23Admin"
 
 ## Edge nodes
