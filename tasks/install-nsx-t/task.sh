@@ -10,8 +10,6 @@ export FUNCTIONS_DIR=$(cd $PIPELINE_DIR/functions && pwd)
 
 export OVA_ISO_PATH='/root/ISOs/CHGA'
 export NSX_T_MANAGER_OVA=$(ls $ROOT_DIR/nsx-mgr-ova)
-export NSX_T_CONTROLLER_OVA=$(ls $ROOT_DIR/nsx-ctrl-ova)
-export NSX_T_EDGE_OVA=$(ls $ROOT_DIR/nsx-edge-ova)
 
 source $FUNCTIONS_DIR/copy_ovas.sh
 source $FUNCTIONS_DIR/create_ansible_cfg.sh
@@ -86,9 +84,9 @@ cd nsxt-ansible
 echo ""
 
 # Check if the status and count of Mgr, Ctrl, Edge
-nsx_mgr_up_status=$(check_status_up $NSX_T_MANAGER_IP "NSX Mgr")
-nsx_controller_up_status=$(check_status_up $NSX_T_CONTROLLER_IPS "NSX Controller")
-nsx_edge_up_status=$(check_status_up $NSX_T_EDGE_IPS "NSX Edge")
+nsx_mgr_up_status=$(check_status_up $nsx_manager_ip_int "NSX Mgr")
+nsx_controller_up_status=$(check_status_up $controller_ips_int "NSX Controller")
+nsx_edge_up_status=$(check_status_up $edge_ips_int "NSX Edge")
 echo ""
 
 STATUS=0

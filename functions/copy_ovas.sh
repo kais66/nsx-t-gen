@@ -32,18 +32,14 @@ function install_ovftool {
 }
 
 function check_ovas {
-
-	for ova_file in "$ROOT_DIR/nsx-mgr-ova/$NSX_T_MANAGER_OVA \
-	$ROOT_DIR/nsx-ctrl-ova/$NSX_T_CONTROLLER_OVA \
-	$ROOT_DIR/nsx-edge-ova/$NSX_T_EDGE_OVA "
-	do
-		is_tar=$(file $ova_file | grep "tar archive" || true)
-		if [ "$is_tar" == "" ]; then
-			echo "File $ova_file downloaded was not a valid OVA image!!"
-			echo "Check the file name/paths. Exiting from ova copy and deploy!!"
-			exit 1
-		fi
-	done
+# ova_file_name_int
+	ova_file="$ROOT_DIR/nsx-mgr-ova/$ova_file_name_int"
+	is_tar=$(file $ova_file | grep "tar archive" || true)
+	if [ "$is_tar" == "" ]; then
+		echo "File $ova_file downloaded was not a valid OVA image!!"
+		echo "Check the file name/paths. Exiting from ova copy and deploy!!"
+		exit 1
+	fi
 }
 
 function copy_ovas_to_OVA_ISO_PATH {
@@ -51,7 +47,7 @@ function copy_ovas_to_OVA_ISO_PATH {
 	mkdir -p $OVA_ISO_PATH
 	check_ovas
 
-	mv $ROOT_DIR/nsx-mgr-ova/$NSX_T_MANAGER_OVA $OVA_ISO_PATH
+	mv $ROOT_DIR/nsx-mgr-ova/$ova_file_name_int $OVA_ISO_PATH
 
 	echo "Done moving ova images into $OVA_ISO_PATH"
 	echo ""
