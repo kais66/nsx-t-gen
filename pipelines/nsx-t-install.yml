@@ -17,7 +17,6 @@ nsx_t_gen_params: &nsx-t-gen-params
   default_gateway_int: ((default_gateway))
   netmask_int: ((netmask))
   nsx_image_webserver_int: ((nsx_image_webserver))
-  path_to_ova_int: ((path_to_ova))
   ova_file_name_int: ((ova_file_name))
   ovftool_file_name_int: ((ovftool_file_name))
   nsx_manager_ip_int: ((nsx_manager_ip))
@@ -222,8 +221,6 @@ resources:
 - name: nsx-mgr-ova
   type: file-url
   source:
-    #username: username
-    #password: password
     url: ((nsx_image_webserver))/((ova_file_name))
     filename: ((ova_file_name))
     skip_ssl_verification: true
@@ -232,8 +229,6 @@ resources:
 - name: ovftool
   type: file-url
   source:
-    #username: username
-    #password: password
     url: ((nsx_image_webserver))/((ovftool_file_name))
     filename: ((ovftool_file_name))
     skip_ssl_verification: true

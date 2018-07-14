@@ -80,7 +80,7 @@ controller_storage_id: "datastore-30"
 controller_shared_secret: "Admin!23Admin"
 
 ## Edge nodes
-edge_ips: 10.40.0.24,10.40.0.25   # comma separated ips, requires min 2 for HA
+edge_ips: 10.40.0.24 # comma separated ips, requires min 2 for HA
 edge_default_gateway: 10.40.1.253
 edge_ip_prefix_length: 23
 edge_hostname_prefix: nsx-t-edge
