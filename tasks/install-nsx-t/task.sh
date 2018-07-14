@@ -79,7 +79,8 @@ create_hosts
 # create_extra_yaml_args # TODO: check if the resource spec (e.g. ip pool) changed in nsxt-ansible
 create_customize_ova_params
 
-cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml customize_ova_vars.yml nsxt-ansible/.
+# cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml customize_ova_vars.yml nsxt-ansible/.
+cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_topology.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
 cd nsxt-ansible
 
 echo ""
@@ -96,9 +97,9 @@ if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o
 	echo "Detected one of the vms (mgr, controller, edge) are not yet up, preparing the ovas"
 	echo ""
 
-	# # install_ovftool
-	# copy_ovas_to_OVA_ISO_PATH
-	# create_customize_ova_params
+	install_ovftool
+	copy_ovas_to_OVA_ISO_PATH
+	create_customize_ova_params
 
 	# TODO: whether it's needed to customize
 	if [ "$NSX_T_KEEP_RESERVATION" != "true" ]; then
@@ -108,6 +109,9 @@ if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o
 		echo ""
 	fi
 fi
+
+# debug
+sleep 6000
 
 # TODO: change the following to run the overall workflow for install and creation of resources
 # Deploy the Mgr ova if its not up

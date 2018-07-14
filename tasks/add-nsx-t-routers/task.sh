@@ -38,7 +38,7 @@ if [ "$NO_OF_CONTROLLERS" -lt 2 ]; then
   exit -1
 fi
 
-ansible-playbook $DEBUG -i hosts ${PIPELINE_DIR}/tasks/add-nsx-t-routers/basic_resources.yml
+ansible-playbook $DEBUG -i hosts basic_resources.yml
 STATUS=$?
 
 # for debug

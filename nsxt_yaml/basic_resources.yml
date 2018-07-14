@@ -53,7 +53,7 @@
         state: present
       register: vtep_pool_object
 
-# ### TODO
+# ### TODO: not idempotent
     - name: Create transport node
       nsxt_transport_nodes:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"

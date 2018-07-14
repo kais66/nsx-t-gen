@@ -16,9 +16,10 @@ nsx_t_gen_params: &nsx-t-gen-params
   ntp_servers_int: ((ntp_servers))
   default_gateway_int: ((default_gateway))
   netmask_int: ((netmask))
+  nsx_image_webserver_int: ((nsx_image_webserver))
   path_to_ova_int: ((path_to_ova))
   ova_file_name_int: ((ova_file_name))
-  ovftool_image_int: ((ovftool_image))
+  ovftool_file_name_int: ((ovftool_file_name))
   nsx_manager_ip_int: ((nsx_manager_ip))
   nsx_manager_username_int: ((nsx_manager_username))
   nsx_manager_password_int: ((nsx_manager_password))
@@ -223,7 +224,7 @@ resources:
   source:
     #username: username
     #password: password
-    url: ((path_to_ova))/((ova_file_name))
+    url: ((nsx_image_webserver))/((ova_file_name))
     filename: ((ova_file_name))
     skip_ssl_verification: true
 
@@ -233,8 +234,8 @@ resources:
   source:
     #username: username
     #password: password
-    url: ((nsx_image_webserver))/((ovftool_image))
-    filename: ((ovftool_image))
+    url: ((nsx_image_webserver))/((ovftool_file_name))
+    filename: ((ovftool_file_name))
     skip_ssl_verification: true
 
 jobs:
