@@ -9,8 +9,6 @@ image_resource:
 inputs:
   - name: nsx-t-gen-pipeline
   - name: nsx-mgr-ova
-  - name: nsx-ctrl-ova
-  - name: nsx-edge-ova
   - name: nsxt-ansible
   - name: ovftool
 

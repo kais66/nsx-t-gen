@@ -27,7 +27,7 @@ fi
 create_hosts
 
 # cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml nsxt-ansible/.
-cp hosts ${PIPELINE_DIR}/tasks/add-nsx-t-routers/basic_resources.yml ${PIPELINE_DIR}/tasks/add-nsx-t-routers/vars.yml nsxt-ansible/
+cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_resources.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
 cd nsxt-ansible
 
 NO_OF_CONTROLLERS=$(curl -k -u "admin:$nsx_manager_password_int" \
