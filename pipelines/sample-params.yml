@@ -194,6 +194,8 @@ nsx_t_t0router_spec: |
       ncp/shared_resource: 'true' # required for PKS
       testtag: 'testpas1'
 
+
+########### Following are what's used in
 # T1 Logical Router with associated logical switches
 # Add additional or comment off unnecessary t1 routers and switches as needed
 # Can have 3 different setups:
@@ -203,6 +205,9 @@ nsx_t_t0router_spec: |
 # 3: Separate mgmt T1 Router and infra logical switch for each PKS and PAS..
 #    Add additional T1Router-Mgmt2 as needed with its infra logical switch
 # Name the routers and logical switches and cidrs differently to avoid conflict
+
+nsx_t_pas_ncp_cluster_tag: 'pas1'
+
 nsx_t_t1router_logical_switches_spec: |
   t1_routers:
   # Add additional T1 Routers or collapse switches into same T1 Router as needed

@@ -70,6 +70,7 @@ nsx_t_gen_params: &nsx-t-gen-params
   nsx_t_transport_vlan_int: ((nsx_t_transport_vlan))
   nsx_t_esxi_vmnics_int: ((nsx_t_esxi_vmnics))
   nsx_t_t0router_spec_int: ((nsx_t_t0router_spec))
+  nsx_t_pas_ncp_cluster_tag_int: ((nsx_t_pas_ncp_cluster_tag))
   nsx_t_t1router_logical_switches_spec_int: ((nsx_t_t1router_logical_switches_spec))
   nsx_t_ha_switching_profile_spec_int: ((nsx_t_ha_switching_profile_spec))
   nsx_t_container_ip_block_spec_int: ((nsx_t_container_ip_block_spec))
@@ -218,14 +219,6 @@ resources:
 
 # Download NSX-T 2.1 bits from
 # https://my.vmware.com/group/vmware/details?downloadGroup=NSX-T-210&productId=673
-
-- name: nsx-mgr-ova
-  type: file-url
-  source:
-    url: ((nsx_image_webserver))/((ova_file_name))
-    filename: ((ova_file_name))
-    skip_ssl_verification: true
-
 # Download from https://my.vmware.com/group/vmware/details?productId=614&downloadGroup=OVFTOOL420#
 - name: ovftool
   type: file-url
@@ -241,7 +234,6 @@ jobs:
   - aggregate:
     - get: nsx-t-gen-pipeline
     - get: nsxt-ansible
-    - get: nsx-mgr-ova
     - get: ovftool
 
   - task: install-nsx-t
@@ -279,7 +271,6 @@ jobs:
   - aggregate:
     - get: nsx-t-gen-pipeline
     - get: nsxt-ansible
-    - get: nsx-mgr-ova
     - get: ovftool
 
   - task: install-nsx-t

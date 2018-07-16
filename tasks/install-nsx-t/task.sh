@@ -9,7 +9,7 @@ export PIPELINE_DIR=$(cd $TASKS_DIR/../../ && pwd)
 export FUNCTIONS_DIR=$(cd $PIPELINE_DIR/functions && pwd)
 
 export OVA_ISO_PATH='/root/ISOs/CHGA'
-export NSX_T_MANAGER_OVA=$(ls $ROOT_DIR/nsx-mgr-ova)
+# export NSX_T_MANAGER_OVA=$(ls $ROOT_DIR/nsx-mgr-ova)
 
 source $FUNCTIONS_DIR/copy_ovas.sh
 source $FUNCTIONS_DIR/create_ansible_cfg.sh
@@ -75,7 +75,7 @@ create_hosts
 # create_answerfile # TODO: not sure if answerfile.yml is used anywhere
 # create_ansible_cfg
 # create_extra_yaml_args # TODO: check if the resource spec (e.g. ip pool) changed in nsxt-ansible
-create_customize_ova_params
+# create_customize_ova_params
 
 # cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml customize_ova_vars.yml nsxt-ansible/.
 cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_topology.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/

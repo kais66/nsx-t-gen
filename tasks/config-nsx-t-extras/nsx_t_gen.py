@@ -34,9 +34,11 @@ global_id_map = { }
 
 
 def init():
-  nsx_mgr_ip          = os.getenv('NSX_T_MANAGER_IP')
-  nsx_mgr_user        = os.getenv('NSX_T_MANAGER_ADMIN_USER', 'admin')
-  nsx_mgr_pwd         = os.getenv('NSX_T_MANAGER_ROOT_PWD')
+  nsx_mgr_ip          = os.getenv('nsx_manager_ip_int')
+  nsx_mgr_user        = os.getenv('nsx_manager_username_int', 'admin')
+  nsx_mgr_pwd         = os.getenv('nsx_manager_password_int')
+  # the value of transport zone name is current static, and hidden from user.
+  # see vars.yml
   transport_zone_name = os.getenv('NSX_T_OVERLAY_TRANSPORT_ZONE')
   nsx_mgr_context     = {
                           'admin_user' : nsx_mgr_user,
@@ -450,9 +452,9 @@ def create_pas_tags():
   return pas_tags
 
 def create_container_ip_blocks():
-  ip_blocks_defn = os.getenv('NSX_T_CONTAINER_IP_BLOCK_SPEC', '').strip()
+  ip_blocks_defn = os.getenv('nsx_t_container_ip_block_spec_int', '').strip()
   if ip_blocks_defn == ''  or ip_blocks_defn == 'null':
-    print('No yaml payload set for the NSX_T_CONTAINER_IP_BLOCK_SPEC, ignoring Container IP Block section!')
+    print('No yaml payload set for the nsx_t_container_ip_block_spec_int, ignoring Container IP Block section!')
     return
 
   ip_blocks = yaml.load(ip_blocks_defn)
@@ -463,7 +465,7 @@ def create_container_ip_blocks():
     #update_tag(CONTAINER_IP_BLOCKS_ENDPOINT + '/' + container_ip_block_id, create_pas_tags())
 
 def create_external_ip_pools():
-  ip_pools_defn = os.getenv('NSX_T_EXTERNAL_IP_POOL_SPEC', '').strip()
+  ip_pools_defn = os.getenv('nsx_t_external_ip_pool_spec_int', '').strip()
   if ip_pools_defn == '' or ip_pools_defn == 'null' :
     print('No yaml payload set for the NSX_T_EXTERNAL_IP_POOL_SPEC, ignoring External IP Pool section!')
     return
@@ -485,9 +487,9 @@ def create_external_ip_pools():
 
 
 def create_ha_switching_profile():
-  pas_tag_name   = os.getenv('NSX_T_PAS_NCP_CLUSTER_TAG')
+  pas_tag_name   = os.getenv('nsx_t_pas_ncp_cluster_tag_int')
 
-  ha_switching_profiles_defn = os.getenv('NSX_T_HA_SWITCHING_PROFILE_SPEC', '').strip()
+  ha_switching_profiles_defn = os.getenv('nsx_t_ha_switching_profile_spec_int', '').strip()
   if ha_switching_profiles_defn == '' or ha_switching_profiles_defn == 'null' :
     print('No yaml payload set for the NSX_T_HA_SWITCHING_PROFILE_SPEC, ignoring HASpoofguard profile section!')
     return
@@ -522,7 +524,7 @@ def create_ha_switching_profile():
   print('Done creating HASwitchingProfiles\n')
 
 def list_certs():
-  csr_request_spec = os.getenv('NSX_T_CSR_REQUEST_SPEC', '').strip()
+  csr_request_spec = os.getenv('nsx_t_csr_request_spec_int', '').strip()
   if csr_request_spec == ''  or csr_request_spec == 'null' :
     return
 
@@ -539,13 +541,13 @@ def generate_self_signed_cert():
 
   nsx_t_manager_fqdn = os.getenv('NSX_T_MANAGER_FQDN', '')
   if nsx_t_manager_fqdn is None or nsx_t_manager_fqdn is '':
-    nsx_t_manager_fqdn = os.getenv('NSX_T_MANAGER_HOST_NAME')
+    nsx_t_manager_fqdn = os.getenv('nsx_manager_assigned_hostname_int')
 
   if nsx_t_manager_fqdn is None or nsx_t_manager_fqdn is '':
     print('Value not set for the NSX_T_MANAGER_HOST_NAME, cannot create self-signed cert')
     return
 
-  csr_request_spec = os.getenv('NSX_T_CSR_REQUEST_SPEC', '').strip()
+  csr_request_spec = os.getenv('nsx_t_csr_request_spec_int', '').strip()
   if csr_request_spec == ''  or csr_request_spec == 'null' :
     return
 
@@ -603,7 +605,7 @@ def build_routers():
   load_edge_clusters()
   load_transport_zones()
 
-  t0_router_content  = os.getenv('NSX_T_T0ROUTER_SPEC').strip()
+  t0_router_content  = os.getenv('nsx_t_t0router_spec_int').strip()
   t0_router         = yaml.load(t0_router_content)['t0_router']
   if t0_router is None:
     print 'No valid T0Router content NSX_T_T0ROUTER_SPEC passed'
@@ -611,7 +613,7 @@ def build_routers():
 
   t0_router_id      = create_t0_logical_router_and_port(t0_router)
 
-  t1_router_content = os.getenv('NSX_T_T1ROUTER_LOGICAL_SWITCHES_SPEC')
+  t1_router_content = os.getenv('nsx_t_t1router_logical_switches_spec_int')
   t1_routers        = yaml.load(t1_router_content)['t1_routers']
   if t1_routers is None:
     print 'No valid T1Router content NSX_T_T1ROUTER_LOGICAL_SWITCHES_SPEC passed'
@@ -687,7 +689,7 @@ def check_for_existing_rule(existing_nat_rules, new_nat_rule):
 
 def add_t0_route_nat_rules():
 
-  nat_rules_defn = os.getenv('NSX_T_NAT_RULES_SPEC', '').strip()
+  nat_rules_defn = os.getenv('nsx_t_nat_rules_spec_int', '').strip()
   if nat_rules_defn == ''  or nat_rules_defn == 'null' :
     print('No yaml payload set for the NSX_T_NAT_RULES_SPEC, ignoring nat rules section!')
     return
@@ -903,7 +905,7 @@ def add_lbr_virtual_server(virtual_server_defn):
 
 def add_loadbalancers():
 
-  lbr_spec_defn = os.getenv('NSX_T_LBR_SPEC', '').strip()
+  lbr_spec_defn = os.getenv('nsx_t_lbr_spec_int', '').strip()
   if lbr_spec_defn == '' or lbr_spec_defn == 'null':
     print('No yaml payload set for the NSX_T_LBR_SPEC, ignoring loadbalancer section!')
     return
