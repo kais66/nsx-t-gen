@@ -106,7 +106,7 @@ if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o
 # 		# ansible-playbook $DEBUG -i localhost customize_ovas.yml -e @customize_ova_vars.yml
 # 		echo ""
 # 	fi
-# fi
+fi
 
 # debug
 sleep 6000
