@@ -108,27 +108,18 @@ if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o
 # 	fi
 fi
 
-# debug
-sleep 6000
+# ansible-playbook $DEBUG -i hosts deploy_mgr.yml -e @extra_yaml_args.yml
+ansible-playbook $DEBUG -i hosts basic_topology.yml
+STATUS=$?
 
-# TODO: change the following to run the overall workflow for install and creation of resources
-# Deploy the Mgr ova if its not up
-if [ "$nsx_mgr_up_status" != "true" ]; then
-	# ansible-playbook $DEBUG -i hosts deploy_mgr.yml -e @extra_yaml_args.yml
-	ansible-playbook $DEBUG -i hosts basic_topology.yml
-	STATUS=$?
-
-	if [[ $STATUS != 0 ]]; then
-		echo "Deployment of NSX Mgr OVA failed, vms failed to come up!!"
-		echo "Check error logs"
-		echo ""
-		exit $STATUS
-	else
-		echo "Deployment of NSX Mgr ova succcessfull!! Continuing with rest of configuration!!"
-		echo ""
-	fi
+if [[ $STATUS != 0 ]]; then
+	echo "Deployment of NSX failed, vms failed to come up!!"
+	echo "Check error logs"
+	echo ""
+	exit $STATUS
 else
-	echo "NSX Mgr up already, skipping deploying of the Mgr ova!!"
+	echo "Deployment of NSX is succcessfull!! Continuing with rest of configuration!!"
+	echo ""
 fi
 
 

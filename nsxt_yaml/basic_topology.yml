@@ -97,7 +97,6 @@
         validate_certs: False
         resource_type: "EdgeNode"
         display_name: "{{hostvars[item].edge_fabric_node_name}}"
-        # node_id: "58c42d2c-d9bb-4d88-9d9c-3d032ad455e2" ### No need to specify if it is to create
         ip_addresses:
           - "{{hostvars[item].ip}}"
         deployment_config:
@@ -124,23 +123,3 @@
               prefix_length: "{{hostvars[item].prefix_length}}"
         state: "present"
       with_items: "{{groups['edge_nodes']}}"
-
-    # - name: Add fabric node
-    #   nsxt_fabric_nodes:
-    #     hostname: "10.40.0.20"
-    #     username: "admin"
-    #     password: "Admin!23Admin"
-    #     validate_certs: False
-    #     resource_type: "HostNode"
-    #     #node_id: "fefc3fed-84d9-4170-bf7c-5d7438ba91e9"
-    #     display_name: "{{item.display_name}}"
-    #     ip_addresses: "{{item.ip_addresses}}"
-    #     os_type: "{{item.os_type}}"
-    #     os_version: "{{item.os_version}}"
-    #     host_credential:
-    #         username: "{{item.host_username}}"
-    #         password: "{{item.host_password}}"
-    #         thumbprint: "{{item.host_thumbprint}}"
-    #     state: "present"
-    #   with_items:
-    #     - "{{fabric_host_nodes}}"
