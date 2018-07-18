@@ -91,15 +91,20 @@
       with_items:
         - "{{groups['edge_nodes']}}"
 
+    - name: define edge cluster members
+      set_fact:
+        edge_members: "{{edge_members|default([]) + [ { 'transport_node_name': hostvars[item].transport_node_name } ] }}"
+      with_items:
+        - "{{groups['edge_nodes']}}"
+
     - name: NSX-T Edge Cluster
       nsxt_edge_clusters:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         display_name: "{{ edge_cluster_name }}"
-        description: "Default Edge Cluster"
-        # create a list with member.ip for member in edge_nodes
-        members: "{{ groups['edge_nodes']|map('extract', hostvars, 'ip') | list }}"
+        validate_certs: False
+        members: "{{ edge_members }}"
         state: present
       register: edge_cluster
 
