@@ -67,7 +67,7 @@ function check_status_up {
 }
 
 DEBUG=""
-if [ "$ENABLE_ANSIBLE_DEBUG" == "true" ]; then
+if [ "$enable_ansible_debug_int" == "true" ]; then
   DEBUG="-vvv"
 fi
 

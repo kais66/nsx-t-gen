@@ -54,7 +54,7 @@ function create_esx_hosts {
   for esx_ip in $(echo $esx_ips_int | sed -e 's/,/ /g')
   do
     cat >> esx_hosts <<-EOF
-esx-host-${count} ansible_host=$esx_ip ansible_user=root ansible_ssh_pass=$esx_root_password_int ip=$esx_ip name=esx-host-${count} hostname=${esx_hostname_prefix_int}-${count}
+esx-host-${count} ansible_host=$esx_ip ansible_user=root ansible_ssh_pass=$esx_root_password_int ip=$esx_ip transport_node_name=esx-transp-${count} hostname=${esx_hostname_prefix_int}-${count}
 EOF
     (( count++ ))
   done

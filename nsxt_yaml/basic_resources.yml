@@ -130,7 +130,7 @@
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
         resource_type: "HostNode"
-        display_name: "{{hostvars[item].name}}"
+        display_name: "{{hostvars[item].transport_node_name}}"
         ip_addresses: "{{hostvars[item].ip}}"
         os_type: "ESXI"
         os_version: "{{hostvars[item].esx_os_version}}"
