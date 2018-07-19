@@ -130,7 +130,7 @@
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
         resource_type: "HostNode"
-        display_name: "{{hostvars[item].transport_node_name}}"
+        display_name: "{{hostvars[item].fabric_node_name}}"
         ip_addresses: "{{hostvars[item].ip}}"
         os_type: "ESXI"
         os_version: "{{hostvars[item].esx_os_version}}"
@@ -166,7 +166,7 @@
               ip_pool_name: "{{hostvars['localhost'].vtep_ip_pool_name}}"
         transport_zone_endpoints:
         - transport_zone_name: "{{overlay_transport_zone}}"
-        fabric_node_name: "{{hostvars[item].name}}"
+        fabric_node_name: "{{hostvars[item].fabric_node_name}}"
         state: present
       with_items:
         - "{{groups['esx_hosts']}}"
