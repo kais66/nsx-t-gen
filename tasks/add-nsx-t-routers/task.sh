@@ -26,7 +26,6 @@ fi
 
 create_hosts
 
-# cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml nsxt-ansible/.
 cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_resources.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
 cd nsxt-ansible
 
@@ -38,6 +37,10 @@ if [ "$NO_OF_CONTROLLERS" -lt 2 ]; then
   exit -1
 fi
 
+# INFO: ansible errors without disabling host_key_checking
+# when obtaining thumbprints
+echo "[defaults]" > ansible.cfg
+echo "host_key_checking = false" >> ansible.cfg
 ansible-playbook $DEBUG -i hosts basic_resources.yml
 STATUS=$?
 
