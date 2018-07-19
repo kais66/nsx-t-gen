@@ -48,6 +48,24 @@ edge_management_network_id="$edge_management_network_id_int"
 EOF
 }
 
+function create_esx_hosts {
+  count=1
+  echo "[esx_hosts]" > esx_hosts
+  for esx_ip in $(echo $esx_ips_int | sed -e 's/,/ /g')
+  do
+    cat >> esx_hosts <<-EOF
+esx-host-${count} ansible_host=$esx_ip ansible_user=root ansible_ssh_pass=$esx_root_password_int ip=$esx_ip name=esx-host-${count} hostname=${esx_hostname_prefix_int}-${count}
+EOF
+    (( count++ ))
+  done
+
+  cat >> esx_hosts <<-EOF
+[esx_hosts:vars]
+esx_os_version=${esx_os_version_int}
+available_vmnic=${esx_available_vmnic_int}
+EOF
+}
+
 ### TODO: where are transport node config params
 function create_esxi_hosts {
   echo "$ESXI_HOSTS_CONFIG" > /tmp/esxi_hosts_config.yml
@@ -137,16 +155,14 @@ EOF
 
   create_edge_hosts
   create_controller_hosts
+  create_esx_hosts
 
   cat ctrl_vms >> hosts
   echo "" >> hosts
   cat edge_vms >> hosts
   echo "" >> hosts
+  cat esx_hosts >> hosts
 
-  if  [ ! -z "$ESXI_HOSTS_CONFIG" ]; then
-    create_esxi_hosts
-    cat esxi_hosts >> hosts
-    echo "" >> hosts
-  fi
+  rm ctrl_vms edge_vms esx_hosts
 
 }

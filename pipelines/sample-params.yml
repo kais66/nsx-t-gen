@@ -99,6 +99,13 @@ edge_storage_id: "datastore-30"
 edge_data_network_id: "network-33"
 edge_management_network_id: "network-33"
 
+esx_ips: 10.40.1.211
+esx_os_version: "6.5.0"
+esx_root_password: "ca$hc0w"
+esx_hostname_prefix: "esx-host"
+esx_available_vmnic: "vmnic1"
+
+
 nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
 nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
 # Edge network interfaces
@@ -108,24 +115,6 @@ nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
 # Change only if necessary
 nsx_t_edge_overlay_interface: fp-eth1 # Wired to Network3
 nsx_t_edge_uplink_interface: fp-eth0  # Wired to Network2
-
-## ESX
-# The Esxi Hosts can be added to transport nodes in two ways:
-# a) specify the esxi hosts individually - first checked for
-# b) or use compute_vcenter_manager to add hosts under a specific vcenter as transport nodes
-
-# Specify passwd of the esxi hosts that should be used for nsx-t
-esxi_hosts_root_pwd: rootPasswd  # EDIT - Root password for the esxi hosts
-
-# Specify FQDN, ip (and passwd if they are different) for each of the esxi hosts that should be used for nsx-t
-esxi_hosts_config: |
-  esxi_hosts:
-  - name: esxi-host1.corp.local.io
-    ip: 10.13.12.10
-    root_pwd: rootPasswd
-# - name: esxi-host2.corp.local.io
-#   ip: 10.13.12.11
-#   root_pwd: rootPasswd
 
 
 # If ova deployment succeeded but controller membership failed or edges didnt get to join for any reason
@@ -157,11 +146,6 @@ nsx_t_transport_vlan: 0
 # nsx_t_overlay_profile_name: "host-overlay-profile"
 # nsx_t_overlay_profile_mtu: 1600 # Min 1600
 # nsx_t_overlay_profile_vlan: EDIT_ME # VLAN ID for the TEP/Overlay network
-
-# Specify an unused vmnic on esxi host to be used for nsx-t
-# can be multiple vmnics separated by comma
-nsx_t_esxi_vmnics: vmnic1 # vmnic1,vmnic2...
-
 
 
 

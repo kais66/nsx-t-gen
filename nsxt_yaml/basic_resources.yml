@@ -1,4 +1,19 @@
 ---
+- name: Get ESX nodes information
+  hosts: esx_hosts
+  gather_facts: True
+  tasks:
+    - name: Get SHA-256 SSL thumbprint
+      command: openssl x509 -in /etc/vmware/ssl/rui.crt -fingerprint -sha256 -noout
+      when:
+        - ansible_distribution == "VMkernel"
+      register: thumb
+    - name: Set ssl thumbprint fact
+      set_fact:
+        sslthumb: "{{ thumb.stdout|regex_findall('Fingerprint=(.*)') }}"
+      when:
+        - ansible_distribution == "VMkernel"
+
 - hosts: 127.0.0.1
   connection: local
   become: yes
@@ -108,6 +123,54 @@
         state: present
       register: edge_cluster
 
+    - name: Add ESX hosts to NSX fabric
+      nsxt_fabric_nodes:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        resource_type: "HostNode"
+        display_name: "{{hostvars[item].name}}"
+        ip_addresses: "{{hostvars[item].ip}}"
+        os_type: "ESXI"
+        os_version: "{{hostvars[item].esx_os_version}}"
+        host_credential:
+            username: "root"
+            password: "{{hostvars[item].ansible_ssh_pass}}"
+            thumbprint: "{{hostvars[item].sslthumb[0]}}"
+        state: present
+      with_items:
+        - "{{groups['esx_hosts']}}"
+
+    - name: Create transport node for ESX hosts
+      nsxt_transport_nodes:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        resource_type: TransportNode
+        display_name: "{{hostvars[item].transport_node_name}}"
+        description: Transport Node for {{hostvars[item].ip}}
+        host_switch_spec:
+          resource_type: StandardHostSwitchSpec
+          host_switches:
+          - host_switch_profiles:
+            - name: "{{host_uplink_prof}}"
+              type: UplinkHostSwitchProfile
+            host_switch_name: "{{overlay_host_switch}}"
+            pnics:
+            - device_name: "{{hostvars[item].available_vmnic}}"
+              uplink_name: "{{uplink_name}}"
+            ip_assignment_spec:
+              resource_type: StaticIpPoolSpec
+              ip_pool_name: "{{hostvars['localhost'].vtep_ip_pool_name}}"
+        transport_zone_endpoints:
+        - transport_zone_name: "{{overlay_transport_zone}}"
+        fabric_node_name: "{{hostvars[item].name}}"
+        state: present
+      with_items:
+        - "{{groups['esx_hosts']}}"
+
     - name: NSX-T T0 Logical Router
       nsxt_logical_routers:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
@@ -117,92 +180,60 @@
         resource_type: LogicalRouter
         description: "NSX-T T0 Logical Router"
         display_name: "tier-0"
-        edge_cluster_id: "{{ edge_cluster.id }}"
-        # advanced_config:
-        #   external_transit_networks:
-        #   - "100.64.1.0/10"
-        #   internal_transit_network: "169.254.0.0/28"
+        edge_cluster_name: "{{ edge_cluster_name }}"
         router_type: TIER0
         high_availability_mode: ACTIVE_STANDBY
+        state: present
       register: t0
 
-#     - name: Create VLAN logical switch
-#       nsxt_logical_switches:
-#         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-#         username: "{{hostvars['localhost'].nsx_manager_username}}"
-#         password: "{{hostvars['localhost'].nsx_manager_password}}"
-#         validate_certs: False
-#         display_name: "{{vlan_logical_switch}}"
-#         replication_mode: SOURCE
-#         admin_state: UP
-#         transport_zone_name: "{{vlan_transport_zone}}"
-#         vlan: "{{ hostvars['localhost'].edge_uplink_profile_vlan }}"
-#         state: "present"
+    - name: Create VLAN logical switch
+      nsxt_logical_switches:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: "{{vlan_logical_switch}}"
+        replication_mode: SOURCE
+        admin_state: UP
+        transport_zone_name: "{{vlan_transport_zone}}"
+        # TODO: which vlan id to use?
+        vlan: 307
+        state: present
 
-#     - name: Logical Switch Port for uplink1
-#       nsxt_logical_ports:
-#         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-#         username: "{{hostvars['localhost'].nsx_manager_username}}"
-#         password: "{{hostvars['localhost'].nsx_manager_password}}"
-#         validate_certs: False
-#         logical_switch_name: "{{vlan_logical_switch}}"
-#         # attachment:
-#         #   attachment_type: VIF
-#         #   id: vif1
-#         admin_state: UP
+    ## module not working yet
+    # - name: Logical Switch Port for uplink1
+    #   nsxt_logical_ports:
+    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
+    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
+    #     validate_certs: False
+    #     logical_switch_name: "{{vlan_logical_switch}}"
+    #     # attachment:
+    #     #   attachment_type: VIF
+    #     #   id: vif1
+    #     admin_state: UP
+    #     state: present
+
+    # ## configure uplink port
+    # - name: t0 uplink port
+    #   nsxt_logical_routers_ports:
+    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
+    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
+    #     validate_certs: False
+    #     resource_type: LogicalRouterDownLinkPort
+    #     logical_router_id: "723c1e3e-c82c-4243-bba0-2e1ef4815143"
+    #     linked_logical_switch_port_id:
+    #       target_type: LogicalPort
+    #       target_id: "18691381-b08f-4d90-8c0c-98d0e449b141"
+    #     subnets:
+    #     - ip_addresses:
+    #       - "172.16.40.1"
+    #       prefix_length: 24
+    #     state: present
 
 ## TODO: need logical router uplink port module support
 ## nsxt_t0_uplink, nsxt_t0_ha_vip, nsxt_static_route
 
 # ## TODO: switch, router port, switch port
 ############################
-
-## convert ESX hosts to fabric and then transport nodes
-    # - name: Add fabric node
-    #   nsxt_fabric_nodes:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     resource_type: "HostNode"
-    #     display_name: "{{item.display_name}}"
-    #     ip_addresses: "{{item.ip_addresses}}"
-    #     os_type: "{{item.os_type}}"
-    #     os_version: "{{item.os_version}}"
-    #     host_credential:
-    #         username: "{{item.host_username}}"
-    #         password: "{{item.host_password}}"
-    #         thumbprint: "{{item.host_thumbprint}}"
-    #     state: "absent"
-    #   with_items:
-    #     - "{{groups['esx_hosts']}}"
-
-    # - name: Create transport node for ESX hosts
-    #   nsxt_transport_nodes:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     resource_type: TransportNode
-    #     display_name: "{{hostvars[item].transport_node_name}}"
-    #     description: Edge Transport Node for {{hostvars[item].ip}}
-    #     host_switch_spec:
-    #       resource_type: StandardHostSwitchSpec
-    #       host_switches:
-    #       - host_switch_profiles:
-    #         - name: "{{esxi_overlay_profile_name}}"
-    #           type: UplinkHostSwitchProfile
-    #         host_switch_name: "{{overlay_host_switch}}"
-    #         pnics:
-    #         - device_name: "{{TODO}}"
-    #           uplink_name: "{{TODO}}"
-    #         ip_assignment_spec:
-    #           resource_type: StaticIpPoolSpec
-    #           ip_pool_name: "{{hostvars['localhost'].vtep_ip_pool_name}}"
-    #     transport_zone_endpoints:
-    #     - transport_zone_name: "{{overlay_transport_zone}}"
-    #     fabric_node_name: "{{hostvars[item].edge_fabric_node_name}}"
-    #     state: present
-    #   with_items:
-    #     - "{{groups['esx_hosts']}}"
-    #
