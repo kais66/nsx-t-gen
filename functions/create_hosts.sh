@@ -66,39 +66,6 @@ available_vmnic=${esx_available_vmnic_int}
 EOF
 }
 
-### TODO: where are transport node config params
-function create_esxi_hosts {
-  echo "$ESXI_HOSTS_CONFIG" > /tmp/esxi_hosts_config.yml
-  touch esxi_hosts
-
-  is_valid_yml=$(cat /tmp/esxi_hosts_config.yml  | shyaml get-values esxi_hosts || true)
-
-  # Check if the esxi_hosts config is not empty and is valid
-  if [ "$ESXI_HOSTS_CONFIG" != "" -a "$is_valid_yml" != "" ]; then
-
-    echo "[nsxtransportnodes]" > esxi_hosts
-
-    length=$(expr $(cat /tmp/esxi_hosts_config.yml  | shyaml get-values esxi_hosts | grep name: | wc -l) - 1 || true )
-    for index in $(seq 0 $length)
-    do
-      ESXI_INSTANCE_HOST=$(cat /tmp/esxi_hosts_config.yml  | shyaml get-value esxi_hosts.${index}.name)
-      ESXI_INSTANCE_IP=$(cat /tmp/esxi_hosts_config.yml  | shyaml get-value esxi_hosts.${index}.ip)
-      ESXI_INSTANCE_PWD=$(cat /tmp/esxi_hosts_config.yml  | shyaml get-value esxi_hosts.${index}.root_pwd)
-      if [ "$ESXI_INSTANCE_PWD" == "" ]; then
-        ESXI_INSTANCE_PWD=$ESXI_HOSTS_ROOT_PWD
-      fi
-
-      cat >> esxi_hosts <<-EOF
-$ESXI_INSTANCE_HOST  ansible_ssh_host=$ESXI_INSTANCE_IP   ansible_ssh_user=root ansible_ssh_pass=$ESXI_INSTANCE_PWD
-EOF
-    done
-  else
-    echo "esxi_hosts_config not set to valid yaml, so ignoring it"
-    echo "Would use computer manager configs to add hosts!!"
-    echo "" >> esxi_hosts
-  fi
-}
-
 ## TODO: convert = notation to : notation when specifiying variables
 function create_hosts {
 
