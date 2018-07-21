@@ -31,6 +31,7 @@ LBR_APPLICATION_PROFILE_ENDPOINT = '%s%s' % (API_VERSION, '/loadbalancer/applica
 LBR_PERSISTENCE_PROFILE_ENDPOINT = '%s%s' % (API_VERSION, '/loadbalancer/persistence-profiles')
 
 global_id_map = { }
+cache = {}
 
 
 def init():
@@ -144,6 +145,8 @@ def load_logical_routers():
     router_id = result['id']
     router_type = result['router_type']
     global_id_map['ROUTER:'+router_type+':'+router_name] = router_id
+    key = result['router_type'] + 'ROUTER:' + result['display_name']
+    cache[key] = result
 
 def check_logical_router(router_name):
   api_endpoint = ROUTERS_ENDPOINT
@@ -153,6 +156,7 @@ def check_logical_router(router_name):
   logical_router_id = None
   for result in resp.json()['results']:
     global_id_map[result['router_type'] + 'ROUTER:' + result['display_name']] = result['id']
+
     if result['display_name'] == router_name:
       logical_router_id = result['id']
 
@@ -259,10 +263,11 @@ def create_t1_logical_router(router_name):
   return router_id
 
 
-def create_t1_logical_router_and_port(t0_router_name, t1_router_name, t0_router_subnet):
+def create_t1_logical_router_and_port(t0_router, t1_router_name):
   api_endpoint = ROUTER_PORTS_ENDPOINT
 
-  t0_router_id=create_t0_logical_router_and_port(t0_router_name, t0_router_subnet)
+  t0_router_id = t0_router['id']
+  t0_router_name = t0_router['display_name']
   t1_router_id=create_t1_logical_router(t1_router_name)
 
   name = "LogicalRouterLinkPortFrom%sTo%s" % (t0_router_name, t1_router_name )
@@ -600,43 +605,6 @@ def generate_self_signed_cert():
   print('NSX Mgr updated to use newly generated CSR!!'
         + '\n    Update response code:{}'.format(update_csr_response.status_code))
 
-def build_routers():
-  init()
-  load_edge_clusters()
-  load_transport_zones()
-
-  t0_router_content  = os.getenv('nsx_t_t0router_spec_int').strip()
-  t0_router         = yaml.load(t0_router_content)['t0_router']
-  if t0_router is None:
-    print 'No valid T0Router content NSX_T_T0ROUTER_SPEC passed'
-    return
-
-  t0_router_id      = create_t0_logical_router_and_port(t0_router)
-
-  t1_router_content = os.getenv('nsx_t_t1router_logical_switches_spec_int')
-  t1_routers        = yaml.load(t1_router_content)['t1_routers']
-  if t1_routers is None:
-    print 'No valid T1Router content NSX_T_T1ROUTER_LOGICAL_SWITCHES_SPEC passed'
-    return
-
-
-  pas_tags = create_pas_tags()
-  update_tag(ROUTERS_ENDPOINT + '/' + t0_router_id, pas_tags)
-
-  create_ha_switching_profile()
-  create_container_ip_blocks()
-  create_external_ip_pools()
-
-  for t1_router in t1_routers:
-    t1_router_name = t1_router['name']
-    create_t1_logical_router_and_port(t0_router_name, t1_router_name, t0_router_subnet)
-    logical_switches = t1_router['switches']
-    for logical_switch_entry in logical_switches:
-      logical_switch_name = logical_switch_entry['name']
-      logical_switch_subnet = logical_switch_entry['subnet']
-      create_logical_switch(logical_switch_name)
-      associate_logical_switch_port(t1_router_name, logical_switch_name, logical_switch_subnet)
-
 def set_t0_route_redistribution():
   for key in global_id_map:
     if key.startswith('ROUTER:TIER0'):
@@ -959,6 +927,48 @@ def add_loadbalancers():
       print 'Updated LBR: {}'.format(lbr['name'])
       print ''
 
+def create_all_t1_routers():
+  # t0_router_content  = os.getenv('nsx_t_t0router_spec_int').strip()
+  # t0_router         = yaml.load(t0_router_content)['t0_router']
+  # if t0_router is None:
+  #   print 'No valid T0Router content NSX_T_T0ROUTER_SPEC passed'
+  #   return
+  nat_rules_defn = os.getenv('nsx_t_nat_rules_spec_int', '').strip()
+  nat_rules_defns = yaml.load(nat_rules_defn)['nat_rules']
+  if nat_rules_defns is None or len(nat_rules_defns) <= 0:
+    print('No nat rule entries in the NSX_T_NAT_RULES_SPEC, nothing to add/update!')
+    return
+  t0_router_name = 'ROUTER:TIER0:' + nat_rules_defns[0]['t0_router']
+  t0_router_id = global_id_map['ROUTER:TIER0:' + nat_rules_defns[0]['t0_router']]
+  t0_router = cache[t0_router_name]
+
+  t1_router_content = os.getenv('nsx_t_t1router_logical_switches_spec_int')
+  t1_routers        = yaml.load(t1_router_content)['t1_routers']
+  if t1_routers is None:
+    print 'No valid T1Router content NSX_T_T1ROUTER_LOGICAL_SWITCHES_SPEC passed'
+    return
+
+  pas_tags = create_pas_tags()
+  update_tag(ROUTERS_ENDPOINT + '/' + t0_router_id, pas_tags)
+
+  # create_container_ip_blocks()
+  # create_external_ip_pools()
+
+  for t1_router in t1_routers:
+    t1_router_name = t1_router['name']
+    # check if it already exists
+    t1_router_key = 'TIER1ROUTER:{}'.format(t1_router_name)
+    if t1_router_key in global_id_map:
+        print "T1 router %s already exists, skip creating router for it" % t1_router_name
+        continue
+    create_t1_logical_router_and_port(t0_router, t1_router_name)
+    logical_switches = t1_router['switches']
+    for logical_switch_entry in logical_switches:
+      logical_switch_name = logical_switch_entry['name']
+      logical_switch_subnet = logical_switch_entry['logical_switch_gw'] + logical_switch_entry['subnet_mask']
+      create_logical_switch(logical_switch_name)
+      associate_logical_switch_port(t1_router_name, logical_switch_name, logical_switch_subnet)
+
 def main():
 
   init()
@@ -980,6 +990,8 @@ def main():
 
   # #print_t0_route_nat_rules()
   add_t0_route_nat_rules()
+
+  create_all_t1_routers()
 
   # Add Loadbalancers, update if already existing
   add_loadbalancers()
