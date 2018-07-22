@@ -33,20 +33,23 @@ LBR_PERSISTENCE_PROFILE_ENDPOINT = '%s%s' % (API_VERSION, '/loadbalancer/persist
 global_id_map = { }
 cache = {}
 
+TIER1 = "TIER1"
+TIER0 = "TIER0"
+
 
 def init():
   nsx_mgr_ip          = os.getenv('nsx_manager_ip_int')
   nsx_mgr_user        = os.getenv('nsx_manager_username_int', 'admin')
   nsx_mgr_pwd         = os.getenv('nsx_manager_password_int')
-  # the value of transport zone name is current static, and hidden from user.
-  # see vars.yml
-  transport_zone_name = os.getenv('NSX_T_OVERLAY_TRANSPORT_ZONE')
+
   nsx_mgr_context     = {
                           'admin_user' : nsx_mgr_user,
                           'url': 'https://' + nsx_mgr_ip,
                           'admin_passwd' : nsx_mgr_pwd
                         }
-  global_id_map['DEFAULT_TRANSPORT_ZONE_NAME'] = transport_zone_name
+  # TODO: the value of transport zone name is current static, and hidden from user.
+  # see vars.yml
+  global_id_map['DEFAULT_TRANSPORT_ZONE_NAME'] = 'overlay-tz'
 
   client.set_context(nsx_mgr_context)
 
@@ -137,6 +140,9 @@ def check_switching_profile(switching_profile_name):
 
   return switching_profile_id
 
+def build_router_key(router_type, router_name):
+    return 'ROUTER:{}:{}'.format(router_type, router_name)
+
 def load_logical_routers():
   api_endpoint = ROUTERS_ENDPOINT
   resp=client.get(api_endpoint)
@@ -144,9 +150,9 @@ def load_logical_routers():
     router_name = result['display_name']
     router_id = result['id']
     router_type = result['router_type']
-    global_id_map['ROUTER:'+router_type+':'+router_name] = router_id
-    key = result['router_type'] + 'ROUTER:' + result['display_name']
-    cache[key] = result
+    router_key = build_router_key(router_type, router_name)
+    global_id_map[router_key] = router_id
+    cache[router_key] = result
 
 def check_logical_router(router_name):
   api_endpoint = ROUTERS_ENDPOINT
@@ -155,7 +161,8 @@ def check_logical_router(router_name):
 
   logical_router_id = None
   for result in resp.json()['results']:
-    global_id_map[result['router_type'] + 'ROUTER:' + result['display_name']] = result['id']
+    router_key = build_router_key(result['router_type'], result['display_name'])
+    global_id_map[router_key] = result['id']
 
     if result['display_name'] == router_name:
       logical_router_id = result['id']
@@ -198,7 +205,8 @@ def create_t0_logical_router(t0_router):
 
   router_id=resp.json()['id']
   print("Created Logical Router '{}' of type '{}'".format(router_name, router_type))
-  global_id_map['TIER0ROUTER:' + router_name] = router_id
+  router_key = build_router_key(TIER0, router_name)
+  global_id_map[router_key] = router_id
   return router_id
 
 def create_t0_logical_router_and_port(t0_router):
@@ -258,7 +266,8 @@ def create_t1_logical_router(router_name):
   resp = client.post(api_endpoint, payload )
 
   router_id=resp.json()['id']
-  global_id_map['TIER1ROUTER:' + router_name] = router_id
+  router_key = build_router_key(TIER1, router_name)
+  global_id_map[router_key] = router_id
   print("Created Logical Router '{}' of type '{}'".format(router_name, router_type))
   return router_id
 
@@ -912,9 +921,9 @@ def add_loadbalancers():
     existing_lbr = check_for_existing_lbr(lbr['name'])
     if existing_lbr is None:
       resp = client.post(lbr_api_endpoint, lbr_service_payload ).json()
-      lbr_id = resp['id']
       print 'Created LBR: {}'.format(lbr['name'])
-      print ''
+      print resp
+      # TODO: error handling
     else:
       # Update existing LBR
       lbr_id = existing_lbr['id']
@@ -925,7 +934,7 @@ def add_loadbalancers():
       lbr_update_api_endpoint = '%s/%s' % (lbr_api_endpoint, lbr_id)
       resp = client.put(lbr_update_api_endpoint, lbr_service_payload, check=False )
       print 'Updated LBR: {}'.format(lbr['name'])
-      print ''
+      print resp
 
 def create_all_t1_routers():
   # t0_router_content  = os.getenv('nsx_t_t0router_spec_int').strip()
@@ -938,9 +947,10 @@ def create_all_t1_routers():
   if nat_rules_defns is None or len(nat_rules_defns) <= 0:
     print('No nat rule entries in the NSX_T_NAT_RULES_SPEC, nothing to add/update!')
     return
-  t0_router_name = 'ROUTER:TIER0:' + nat_rules_defns[0]['t0_router']
-  t0_router_id = global_id_map['ROUTER:TIER0:' + nat_rules_defns[0]['t0_router']]
-  t0_router = cache[t0_router_name]
+  t0_router_name = nat_rules_defns[0]['t0_router']
+  t0_router_key = build_router_key(TIER0, t0_router_name)
+  t0_router_id = global_id_map[t0_router_key]
+  t0_router = cache[t0_router_key]
 
   t1_router_content = os.getenv('nsx_t_t1router_logical_switches_spec_int')
   t1_routers        = yaml.load(t1_router_content)['t1_routers']
@@ -957,7 +967,7 @@ def create_all_t1_routers():
   for t1_router in t1_routers:
     t1_router_name = t1_router['name']
     # check if it already exists
-    t1_router_key = 'TIER1ROUTER:{}'.format(t1_router_name)
+    t1_router_key = build_router_key(TIER1, t1_router_name)
     if t1_router_key in global_id_map:
         print "T1 router %s already exists, skip creating router for it" % t1_router_name
         continue

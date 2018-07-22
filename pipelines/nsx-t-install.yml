@@ -2,7 +2,6 @@
 # Use reference instead of repeating the nsx-t params
 nsx_t_gen_params: &nsx-t-gen-params
   enable_ansible_debug_int: ((enable_ansible_debug))
-  nsx_t_installer_int: ((nsx_t_installer))
   vcenter_ip_int: ((vcenter_ip))
   vcenter_username_int: ((vcenter_username))
   vcenter_password_int: ((vcenter_password))
@@ -64,14 +63,7 @@ nsx_t_gen_params: &nsx-t-gen-params
   esx_root_password_int: ((esx_root_password))
   esx_hostname_prefix_int: ((esx_hostname_prefix))
   esx_available_vmnic_int: ((esx_available_vmnic))
-  nsx_t_edge_portgroup_ext_int: ((nsx_t_edge_portgroup_ext))
-  nsx_t_edge_portgroup_transport_int: ((nsx_t_edge_portgroup_transport))
-  nsx_t_edge_overlay_interface_int: ((nsx_t_edge_overlay_interface))
-  nsx_t_edge_uplink_interface_int: ((nsx_t_edge_uplink_interface))
-  rerun_configure_controllers_int: ((rerun_configure_controllers))
-  nsx_t_keep_reservation_int: ((nsx_t_keep_reservation))
-  nsx_t_transport_vlan_int: ((nsx_t_transport_vlan))
-  nsx_t_t0router_spec_int: ((nsx_t_t0router_spec))
+
   nsx_t_pas_ncp_cluster_tag_int: ((nsx_t_pas_ncp_cluster_tag))
   nsx_t_t1router_logical_switches_spec_int: ((nsx_t_t1router_logical_switches_spec))
   nsx_t_ha_switching_profile_spec_int: ((nsx_t_ha_switching_profile_spec))
@@ -171,17 +163,17 @@ nsx_t_gen_params: &nsx-t-gen-params
 
 groups:
 
-- name: full-install
+- name: full-install-config
   jobs:
   - install-nsx-t
   - add-nsx-t-routers
   - config-nsx-t-extras
 
-- name: base-install
+- name: install-nsx-t
   jobs:
   - standalone-install-nsx-t
 
-- name: add-routers
+- name: add-nsx-t-routers
   jobs:
   - standalone-add-nsx-t-routers
 

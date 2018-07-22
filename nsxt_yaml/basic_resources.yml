@@ -235,5 +235,4 @@
 ## TODO: need logical router uplink port module support
 ## nsxt_t0_uplink, nsxt_t0_ha_vip, nsxt_static_route
 
-# ## TODO: switch, router port, switch port
 ############################

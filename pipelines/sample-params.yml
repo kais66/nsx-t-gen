@@ -14,7 +14,6 @@
 # Change default size for deployment for edge and mgr
 
 enable_ansible_debug: false # set value to true for verbose output from ansible
-nsx_t_installer: nsx-t-gen  # Set to name of installer or env or any value so resources can be identified
 
 # vCenter details to deploy the Mgmt OVAs (Mgr, Edge, Controller)
 vcenter_ip: 10.40.1.206
@@ -25,9 +24,6 @@ vcenter_datacenter: 1-datacenter-1080
 vcenter_cluster: 1-cluster-729
 vcenter_datastore: vdnetSharedStorage
 
-# vcenter_manager: vcenter-1                # EDIT
-# vcenter_rp:                               # EDIT - resource pool where mgmt plane vms would get deployed
-
 # OVA general network settings
 mgmt_portgroup: 'VM Network'
 dns_server: 10.13.12.2
@@ -36,7 +32,6 @@ ntp_servers: 10.13.12.2
 default_gateway: 10.13.12.1
 netmask: 255.255.255.0
 # only NSX manager OVA is required
-# path_to_ova: "http://build-squid.eng.vmware.com/build/mts/release/bora-8968195/publish/nsx-unified-appliance/exports/ova/"
 nsx_image_webserver: "http://10.33.75.99:40001"
 ova_file_name: "nsx-unified-appliance-2.2.0.0.1.8968271.ova"
 ovftool_file_name: "VMware-ovftool-4.3.0-9158644-lin.x86_64.bundle"
@@ -63,7 +58,6 @@ vtep_ip_pool_cidr: 192.168.213.0/24
 vtep_ip_pool_gateway: 192.168.213.1
 vtep_ip_pool_start: 192.168.213.10
 vtep_ip_pool_end: 192.168.213.200
-#nsx_t_tep_pool_nameserver: 192.168.213.2 # Not required
 
 ## Controllers
 controller_ips: 10.40.0.21
@@ -73,7 +67,7 @@ controller_hostname_prefix: controller # no spaces, Generated name: controller_1
 controller_vmname_prefix: controller-vm # Generated edge host name would be "NSX-T controller-vm_1"
 controller_cli_password: "Admin!23Admin" # Min 8 chars, upper, lower, num, special char
 controller_root_password: "Admin!23Admin"
-controller_deployment_size: "MEDIUM"
+controller_deployment_size: "SMALL"
 # where to create controllers
 controller_compute_id: "domain-c25"
 controller_storage_id: "datastore-30"
@@ -106,77 +100,56 @@ esx_hostname_prefix: "esx-host"
 esx_available_vmnic: "vmnic1"
 
 
-nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
-nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
+# nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
+# nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
 # Edge network interfaces
 # Network1 and Network4 are for mgmt and not used for uplink
 # Network2 is for external uplink
 # Network3 is for overlay
 # Change only if necessary
-nsx_t_edge_overlay_interface: fp-eth1 # Wired to Network3
-nsx_t_edge_uplink_interface: fp-eth0  # Wired to Network2
-
-
-# If ova deployment succeeded but controller membership failed or edges didnt get to join for any reason
-# enable rerun of the configure controllers
-rerun_configure_controllers: false  # set it to true if you want to rerun the configure controllers
-                                    # (as part of base ova install job) even as ova deployment succeeded
+# nsx_t_edge_overlay_interface: fp-eth1 # Wired to Network3
+# nsx_t_edge_uplink_interface: fp-eth0  # Wired to Network2
 
 # Memory reservation is turned ON by default with the NSX-T OVAs.
 # This would mean a deployment of an edge or a mgr would reserve full memory
 # leading to memory constraints
 # if nsx_t_keep_reservation to true  - would keep reservation ON, recommended for production setups.
 # if nsx_t_keep_reservation to false - would turn reservation OFF, recommended for POCs, smaller setups.
-nsx_t_keep_reservation: true # for Prod setup
-
-
+# nsx_t_keep_reservation: true # for Prod setup
 
 # For Edge External uplink
 # Check with network admin if its tagged or untagged
-nsx_t_transport_vlan: 0
-
-
-
-# # For outbound uplink connection used by Edge
-# nsx_t_single_uplink_profile_name: "single-uplink-profile"
-# nsx_t_single_uplink_profile_mtu: 1600 # Min 1600
-# nsx_t_single_uplink_profile_vlan: 0 # Default
-
-# # For internal overlay connection used by Esxi hosts
-# nsx_t_overlay_profile_name: "host-overlay-profile"
-# nsx_t_overlay_profile_mtu: 1600 # Min 1600
-# nsx_t_overlay_profile_vlan: EDIT_ME # VLAN ID for the TEP/Overlay network
-
+# nsx_t_transport_vlan: 0
 
 
 ############################
 # MP resource spec
 #############################
 
-# Configs for T0Router (only one per run), T1Routers, Logical switches and tags...
-# Make sure the ncp/cluster tag matches the one defined at the top level.
-# Expects to use atleast 2 edge instances for HA that need to be installed
-nsx_t_t0router_spec: |
-  t0_router:
-    name: DefaultT0Router
-    ha_mode: 'ACTIVE_STANDBY'
-    # Specify the edges to be used for hosting the T0Router instance
-    edge_indexes:
-      # Index starts from 1 -> denoting nsx-t-edge-01
-      primary: 1   # Index for primary edge to be used
-      secondary: 2 # Index for secondary edge to be used
-    vip: 10.13.12.103/27
-    ip1: 10.13.12.101/27
-    ip2: 10.13.12.102/27
-    vlan_uplink: 0
-    static_route:
-      next_hop: 10.13.12.1
-      network: 0.0.0.0/0
-      admin_distance: 1
-    tags:
-      ncp/cluster: 'pas1' # Should match the top level ncp/cluster tag value
-      ncp/shared_resource: 'true' # required for PKS
-      testtag: 'testpas1'
+# # Configs for T0Router (only one per run), T1Routers, Logical switches and tags...
+# # Make sure the ncp/cluster tag matches the one defined at the top level.
+# # Expects to use atleast 2 edge instances for HA that need to be installed
+# nsx_t_t0router_spec: |
+#   t0_router:
+#     name: DefaultT0Router
+#     ha_mode: 'ACTIVE_STANDBY'
+#     # Specify the edges to be used for hosting the T0Router instance
+#     edge_indexes:
+#       # Index starts from 1 -> denoting nsx-t-edge-01
+#       primary: 1   # Index for primary edge to be used
+#       secondary: 2 # Index for secondary edge to be used
+#     vip: 10.13.12.103/27
+#     ip1: 10.13.12.101/27
+#     ip2: 10.13.12.102/27
+#     vlan_uplink: 0
+#     static_route:
+#       next_hop: 10.13.12.1
+#       network: 0.0.0.0/0
+#       admin_distance: 1
+#     tags:
+#       ncp/cluster: 'pas1' # Should match the top level ncp/cluster tag value
+#       ncp/shared_resource: 'true' # required for PKS
+#       testtag: 'testpas1'
 
 
 ########### Following are what's used in
@@ -202,36 +175,36 @@ nsx_t_t1router_logical_switches_spec: |
       logical_switch_gw: 192.168.10.1 # Last octet should be 1 rather than 0
       subnet_mask: 24
 
-  # - name: T1-Router-PAS-ERT
-  #   switches:
-  #   - name: PAS-ERT
-  #     logical_switch_gw: 192.168.24.1 # Last octet should be 1 rather than 0
-  #     subnet_mask: 24
+  - name: T1-Router-PAS-ERT
+    switches:
+    - name: PAS-ERT
+      logical_switch_gw: 192.168.24.1 # Last octet should be 1 rather than 0
+      subnet_mask: 24
 
-  # - name: T1-Router-PAS-Services
-  #   switches:
-  #   - name: PAS-Services
-  #     logical_switch_gw: 192.168.28.1 # Last octet should be 1 rather than 0
-  #     subnet_mask: 24
+  - name: T1-Router-PAS-Services
+    switches:
+    - name: PAS-Services
+      logical_switch_gw: 192.168.28.1 # Last octet should be 1 rather than 0
+      subnet_mask: 24
 
-  # - name: T1-Router-PAS-DynamicServices
-  #   switches:
-  #   - name: PAS-DynamicServices
-  #     logical_switch_gw: 192.168.30.1 # Last octet should be 1 rather than 0
-  #     subnet_mask: 24
+  - name: T1-Router-PAS-DynamicServices
+    switches:
+    - name: PAS-DynamicServices
+      logical_switch_gw: 192.168.30.1 # Last octet should be 1 rather than 0
+      subnet_mask: 24
 
-  # # Comment off the following T1 Routers if there is no PKS
-  # - name: T1-Router-PKS-Infra
-  #   switches:
-  #   - name: PKS-Infra
-  #     logical_switch_gw: 192.168.20.1 # Last octet should be 1 rather than 0
-  #     subnet_mask: 24
+  # Comment off the following T1 Routers if there is no PKS
+  - name: T1-Router-PKS-Infra
+    switches:
+    - name: PKS-Infra
+      logical_switch_gw: 192.168.20.1 # Last octet should be 1 rather than 0
+      subnet_mask: 24
 
-  # - name: T1Router-PKS-K8s-Clusters
-  #   switches:
-  #   - name: PKS-K8s-Clusters
-  #     logical_switch_gw: 192.168.40.1 # Last octet should be 1 rather than 0
-  #     subnet_mask: 24
+  - name: T1Router-PKS-K8s-Clusters
+    switches:
+    - name: PKS-K8s-Clusters
+      logical_switch_gw: 192.168.40.1 # Last octet should be 1 rather than 0
+      subnet_mask: 24
 
 
 # Make sure the ncp/cluster tag matches the one defined on the T0 Router

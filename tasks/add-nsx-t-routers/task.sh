@@ -11,7 +11,7 @@ export FUNCTIONS_DIR=$(cd $PIPELINE_DIR/functions && pwd)
 source $FUNCTIONS_DIR/create_hosts.sh
 
 DEBUG=""
-if [ "$ENABLE_ANSIBLE_DEBUG" == "true" ]; then
+if [ "$enable_ansible_debug_int" == "true" ]; then
   DEBUG="-vvv"
 fi
 

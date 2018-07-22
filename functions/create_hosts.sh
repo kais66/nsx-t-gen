@@ -1,51 +1,78 @@
 #!/bin/bash
 
 function create_controller_hosts {
-  count=1
   echo "[controllers]" > ctrl_vms
-  for controller_ip in $(echo $controller_ips_int | sed -e 's/,/ /g')
-  do
-    cat >> ctrl_vms <<-EOF
-  controller-${count} ip=$controller_ip hostname=${controller_hostname_prefix_int}-${count} default_gateway=${controller_default_gateway_int} prefix_length=$controller_ip_prefix_length_int
-EOF
-    (( count++ ))
+  # outer paren converts string to an array
+  controller_ips_int=($(echo $controller_ips_int | sed -e 's/,/ /g'))
+  per_controller_params=("controller_deployment_size_int" "controller_compute_id_int" "controller_storage_id_int" "controller_management_network_id_int")
+
+  num_controllers=${#controller_ips_int[@]}
+  for ((i=0;i<$num_controllers;++i)); do
+    controller_ip=${controller_ips_int[i]}
+    count=$((i+1))
+    hostname="${controller_hostname_prefix_int}-${count}.${dns_domain_int}"
+    controller_host="controller-${count} ip=$controller_ip hostname=${hostname} default_gateway=${controller_default_gateway_int} prefix_length=$controller_ip_prefix_length_int"
+    for param in "${per_controller_params[@]}"; do
+      # test if a single value is provided or a list is
+      # ${!param} indirect param expansion to get value of var with var name being $param
+      param_val=($(echo ${!param} | sed -e 's/,/ /g'))
+      if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#controller_ips_int[@]} ]]; then
+        # ${param::-4} removes the _int postfix from var name
+        controller_host="${controller_host} ${param::-4}=${param_val[i]}"
+      fi
+    done
+    echo $controller_host >> ctrl_vms
   done
+
   cat >> ctrl_vms <<-EOF
 [controllers:vars]
 controller_cli_password="$controller_cli_password_int"
 controller_root_password="$controller_root_password_int"
-controller_deployment_size="$controller_deployment_size_int"
-controller_compute_id="$controller_compute_id_int"
-controller_storage_id="$controller_storage_id_int"
-controller_management_network_id="$controller_management_network_id_int"
 controller_shared_secret="$controller_shared_secret_int"
 EOF
+
+  for param in "${per_controller_params[@]}"; do
+    param_val=($(echo ${!param} | sed -e 's/,/ /g'))
+    if [[ ${#param_val[@]} -eq 1 ]]; then
+      echo "${param::-4}=${param_val[0]}" >> ctrl_vms
+    fi
+  done
 
 }
 
 # TODO: update this with params from https://github.com/yasensim/nsxt-ansible/blob/master/answerfile.yml
 function create_edge_hosts {
-  count=1
   echo "[edge_nodes]" > edge_vms
-  for edge_ip in $(echo $edge_ips_int | sed -e 's/,/ /g')
-  do
-    cat >> edge_vms <<-EOF
-edge-${count} ip=$edge_ip hostname=${edge_hostname_prefix_int}-${count} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}
-
-EOF
-    (( count++ ))
+  edge_ips_int=($(echo $edge_ips_int | sed -e 's/,/ /g'))
+  per_edge_params=("edge_deployment_size_int" "edge_compute_id_int" "edge_storage_id_int" "edge_data_network_id_int" "edge_management_network_id_int")
+  num_edges=${#edge_ips_int[@]}
+  hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
+  for ((i=0;i<$num_edges;++i)); do
+    edge_ip=${edge_ips_int[i]}
+    count=$((i+1))
+    edge_host="edge-${count} ip=$edge_ip hostname=${hostname} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}"
+    for param in "${per_edge_params[@]}"; do
+      # test if a single value is provided or a list is
+      param_val=($(echo ${!param} | sed -e 's/,/ /g'))
+      if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#edge_ips_int[@]} ]]; then
+        edge_host="${edge_host} ${param::-4}=${param_val[i]}"
+      fi
+    done
+    echo $edge_host >> edge_vms
   done
 
   cat >> edge_vms <<-EOF
 [edge_nodes:vars]
 edge_cli_password="$edge_cli_password_int"
 edge_root_password="$edge_root_password_int"
-edge_deployment_size="$edge_deployment_size_int"
-edge_compute_id="$edge_compute_id_int"
-edge_storage_id="$edge_storage_id_int"
-edge_data_network_id="$edge_data_network_id_int"
-edge_management_network_id="$edge_management_network_id_int"
 EOF
+
+  for param in "${per_edge_params[@]}"; do
+    param_val=($(echo ${!param} | sed -e 's/,/ /g'))
+    if [[ ${#param_val[@]} -eq 1 ]]; then
+      echo "${param::-4}=${param_val[0]}" >> edge_vms
+    fi
+  done
 }
 
 function create_esx_hosts {
@@ -53,8 +80,9 @@ function create_esx_hosts {
   echo "[esx_hosts]" > esx_hosts
   for esx_ip in $(echo $esx_ips_int | sed -e 's/,/ /g')
   do
+    hostname="${esx_hostname_prefix_int}-${count}.${dns_domain_int}"
     cat >> esx_hosts <<-EOF
-esx-host-${count} ansible_host=$esx_ip ansible_user=root ansible_ssh_pass=$esx_root_password_int ip=$esx_ip fabric_node_name=esx-fabric-${count} transport_node_name=esx-transp-${count} hostname=${esx_hostname_prefix_int}-${count}
+esx-host-${count} ansible_host=$esx_ip ansible_user=root ansible_ssh_pass=$esx_root_password_int ip=$esx_ip fabric_node_name=esx-fabric-${count} transport_node_name=esx-transp-${count} hostname=${hostname}
 EOF
     (( count++ ))
   done

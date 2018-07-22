@@ -9,7 +9,6 @@ export PIPELINE_DIR=$(cd $TASKS_DIR/../../ && pwd)
 export FUNCTIONS_DIR=$(cd $PIPELINE_DIR/functions && pwd)
 
 export OVA_ISO_PATH='/root/ISOs/CHGA'
-# export NSX_T_MANAGER_OVA=$(ls $ROOT_DIR/nsx-mgr-ova)
 
 source $FUNCTIONS_DIR/copy_ovas.sh
 source $FUNCTIONS_DIR/create_ansible_cfg.sh
@@ -72,9 +71,7 @@ if [ "$enable_ansible_debug_int" == "true" ]; then
 fi
 
 create_hosts
-# create_answerfile # TODO: not sure if answerfile.yml is used anywhere
 # create_ansible_cfg
-# create_extra_yaml_args # TODO: check if the resource spec (e.g. ip pool) changed in nsxt-ansible
 # create_customize_ova_params
 
 # cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml customize_ova_vars.yml nsxt-ansible/.
@@ -83,32 +80,16 @@ cd nsxt-ansible
 
 echo ""
 
-# Check if the status and count of Mgr, Ctrl, Edge
-nsx_mgr_up_status=$(check_status_up $nsx_manager_ip_int "NSX Mgr")
-nsx_controller_up_status=$(check_status_up $controller_ips_int "NSX Controller")
-nsx_edge_up_status=$(check_status_up $edge_ips_int "NSX Edge")
-echo ""
 
-STATUS=0
-# Copy over the ovas if any of the resources are not up
-if [ "$nsx_mgr_up_status" != "true" -o  "$nsx_controller_up_status" != "true" -o "$nsx_edge_up_status" != "true" ]; then
-	echo "Detected one of the vms (mgr, controller, edge) are not yet up, preparing the ovas"
-	echo ""
+# Check if NSX MGR is up or not
+nsx_mgr_up_status=$(curl -s -o /dev/null -I -w "%{http_code}" -k  https://${nsx_manager_ip_int}:443/login.jsp || true)
 
-	install_ovftool
-# 	copy_ovas_to_OVA_ISO_PATH
-# 	create_customize_ova_params
-
-# 	# TODO: whether it's needed to customize
-# 	if [ "$NSX_T_KEEP_RESERVATION" != "true" ]; then
-# 		echo "Reservation turned off, customizing the ovas to turn off reservation!!"
-# 		echo ""
-# 		# ansible-playbook $DEBUG -i localhost customize_ovas.yml -e @customize_ova_vars.yml
-# 		echo ""
-# 	fi
+# Deploy the ovas if its not up
+if [ $nsx_mgr_up_status -ne 200 ]; then
+  echo "NSX Mgr not deployed yet. Installing ovftool"
+  install_ovftool
 fi
 
-# ansible-playbook $DEBUG -i hosts deploy_mgr.yml -e @extra_yaml_args.yml
 ansible-playbook $DEBUG -i hosts basic_topology.yml
 STATUS=$?
 
@@ -121,51 +102,6 @@ else
 	echo "Deployment of NSX is succcessfull!! Continuing with rest of configuration!!"
 	echo ""
 fi
-
-
-# Give some time for vm services to be up before checking the status of the vm instances
-echo "Wait for 30 seconds before checking if all NSX VMs are up"
-sleep 30
-echo ""
-
-echo "Rechecking the status and count of Mgr, Ctrl, Edge instances !!"
-nsx_mgr_up_status=$(check_status_up $NSX_T_MANAGER_IP "NSX Mgr")
-nsx_controller_up_status=$(check_status_up $NSX_T_CONTROLLER_IPS "NSX Controller")
-nsx_edge_up_status=$(check_status_up $NSX_T_EDGE_IPS "NSX Edge")
-echo ""
-
-if [ "$nsx_mgr_up_status" != "true" \
-			-o "$nsx_controller_up_status" != "true" \
-			-o "$nsx_edge_up_status" != "true" ]; then
-# if [ "$nsx_mgr_up_status" != "true" \
-# 			-o "$nsx_controller_up_status" != "true" ]; then
-	echo "Some problem with the VMs, one or more of the vms (mgr, controller, edge) failed to come up or not accessible!"
-	echo "Check the related vms!!"
-	echo "Notes: "
-	echo "   Its possible a vm is not reachable or temporarily unavailable, try restarting the concourse job"
-	echo "   In rare cases, delete any older non-running vms (same name can affect new ova deployment) "
-	echo "       as well as any vms that did not form a not complete set (like only 1 controller up out of 3)"
-	echo "   Check also the FAQs here: https://github.com/sparameswaran/nsx-t-gen/blob/master/docs/faqs.md"
-	exit 1
-fi
-echo ""
-
-# Configure the controllers
-# NO_OF_EDGES_CONFIGURED=$(echo $NSX_T_EDGE_IPS | sed -e 's/,/ /g' | awk '{print NF}' )
-# NO_OF_CONTROLLERS_CONFIGURED=$(echo $NSX_T_CONTROLLER_IPS | sed -e 's/,/ /g' | awk '{print NF}' )
-
-# # Total number of controllers should be mgr + no of controllers
-# EXPECTED_TOTAL_CONTROLLERS=$(expr 1 + $NO_OF_CONTROLLERS_CONFIGURED )
-
-# CURRENT_TOTAL_EDGES=$(curl -k -u "admin:$NSX_T_MANAGER_ADMIN_PWD" \
-#                     https://${NSX_T_MANAGER_IP}/api/v1/fabric/nodes \
-#                      2>/dev/null | jq '.result_count' )
-
-# CURRENT_TOTAL_CONTROLLERS=$(curl -k -u "admin:$NSX_T_MANAGER_ADMIN_PWD" \
-#                     https://${NSX_T_MANAGER_IP}/api/v1/cluster/nodes \
-#                      2>/dev/null | jq '.result_count' )
-
-
 
 echo "Successfully finished with Install!!"
 
