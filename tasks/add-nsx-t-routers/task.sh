@@ -44,9 +44,4 @@ echo "host_key_checking = false" >> ansible.cfg
 ansible-playbook $DEBUG -i hosts basic_resources.yml
 STATUS=$?
 
-# for debug
-sleep 6000
-
-echo ""
-
 exit $STATUS
