@@ -58,6 +58,7 @@ vtep_ip_pool_cidr: 192.168.213.0/24
 vtep_ip_pool_gateway: 192.168.213.1
 vtep_ip_pool_start: 192.168.213.10
 vtep_ip_pool_end: 192.168.213.200
+tier0_router_name: "DefaultT0Router"
 
 ## Controllers
 controller_ips: 10.40.0.21

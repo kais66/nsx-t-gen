@@ -179,7 +179,7 @@
         validate_certs: False
         resource_type: LogicalRouter
         description: "NSX-T T0 Logical Router"
-        display_name: "tier-0"
+        display_name: "{{hostvars['localhost'].tier0_router_name}}"
         edge_cluster_name: "{{ edge_cluster_name }}"
         router_type: TIER0
         high_availability_mode: ACTIVE_STANDBY
