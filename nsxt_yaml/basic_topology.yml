@@ -108,9 +108,9 @@
             placement_type: VsphereDeploymentConfig
             vc_id: "{{compute_manager.id}}"
             data_network_ids:
-            - "{{hostvars[item].edge_data_network_id}}"
-            - "{{hostvars[item].edge_data_network_id}}"
-            - "{{hostvars[item].edge_data_network_id}}"
+            - "{{hostvars[item].edge_uplink_network_id}}"
+            - "{{hostvars[item].edge_overlay_network_id}}"
+            - "{{hostvars[item].edge_management_network_id}}"
             management_network_id: "{{hostvars[item].edge_management_network_id}}"
             hostname: "{{hostvars[item].hostname}}"
             compute_id: "{{hostvars[item].edge_compute_id}}"

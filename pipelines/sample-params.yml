@@ -91,7 +91,8 @@ edge_root_password: "Admin!23Admin"
 edge_deployment_size: "SMALL"
 edge_compute_id: "domain-c25"
 edge_storage_id: "datastore-30"
-edge_data_network_id: "network-33"
+edge_uplink_network_id: "network-33"
+edge_overlay_network_id: "network-33"
 edge_management_network_id: "network-33"
 
 esx_ips: 10.40.1.211

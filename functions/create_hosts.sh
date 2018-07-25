@@ -44,7 +44,7 @@ EOF
 function create_edge_hosts {
   echo "[edge_nodes]" > edge_vms
   edge_ips_int=($(echo $edge_ips_int | sed -e 's/,/ /g'))
-  per_edge_params=("edge_deployment_size_int" "edge_compute_id_int" "edge_storage_id_int" "edge_data_network_id_int" "edge_management_network_id_int")
+  per_edge_params=("edge_deployment_size_int" "edge_compute_id_int" "edge_storage_id_int" "edge_uplink_network_id_int" "edge_overlay_network_id_int" "edge_management_network_id_int")
   num_edges=${#edge_ips_int[@]}
   hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
   for ((i=0;i<$num_edges;++i)); do
