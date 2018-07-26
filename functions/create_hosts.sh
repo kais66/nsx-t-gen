@@ -32,9 +32,10 @@ controller_shared_secret="$controller_shared_secret_int"
 EOF
 
   for param in "${per_controller_params[@]}"; do
-    param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    # param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    param_val="${!param}"
     # if [[ ${#param_val[@]} -eq 1 ]]; then
-    echo "${param::-4}=${param_val[0]}" >> ctrl_vms
+    echo "${param::-4}=${param_val}" >> ctrl_vms
     # fi
   done
 
@@ -69,9 +70,10 @@ edge_root_password="$edge_root_password_int"
 EOF
 
   for param in "${per_edge_params[@]}"; do
-    param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    # param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    param_val="${!param}"
     # if [[ ${#param_val[@]} -eq 1 ]]; then
-    echo "${param::-4}=${param_val[0]}" >> edge_vms
+    echo "${param::-4}=${param_val}" >> edge_vms
     # fi
   done
 }
