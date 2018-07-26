@@ -89,7 +89,7 @@ if [ $nsx_mgr_up_status -ne 200 ]; then
   install_ovftool
 fi
 
-ansible-playbook $DEBUG -i hosts basic_topology.yml
+ansible-playbook $DEBUG -i hosts.out basic_topology.yml
 STATUS=$?
 
 if [[ $STATUS != 0 ]]; then

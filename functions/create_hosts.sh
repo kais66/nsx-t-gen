@@ -3,7 +3,7 @@
 function create_controller_hosts {
   echo "[controllers]" > ctrl_vms
   # outer paren converts string to an array
-  controller_ips_int=($(echo $controller_ips_int | sed -e 's/,/ /g'))
+  controller_ips_int=($(echo "$controller_ips_int" | sed -e 's/,/ /g'))
   per_controller_params=("controller_deployment_size_int" "vc_datacenter_for_controller_int" "vc_cluster_for_controller_int" "vc_datastore_for_controller_int" "vc_management_network_for_controller_int")
 
   num_controllers=${#controller_ips_int[@]}
@@ -12,16 +12,16 @@ function create_controller_hosts {
     count=$((i+1))
     hostname="${controller_hostname_prefix_int}-${count}.${dns_domain_int}"
     controller_host="controller-${count} ip=$controller_ip hostname=${hostname} default_gateway=${controller_default_gateway_int} prefix_length=$controller_ip_prefix_length_int"
-    for param in "${per_controller_params[@]}"; do
-      # test if a single value is provided or a list is
-      # ${!param} indirect param expansion to get value of var with var name being $param
-      param_val=($(echo ${!param} | sed -e 's/,/ /g'))
-      if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#controller_ips_int[@]} ]]; then
-        # ${param::-4} removes the _int postfix from var name
-        controller_host="${controller_host} ${param::-4}=${param_val[i]}"
-      fi
-    done
-    echo $controller_host >> ctrl_vms
+    # for param in "${per_controller_params[@]}"; do
+    #   # test if a single value is provided or a list is
+    #   # ${!param} indirect param expansion to get value of var with var name being $param
+    #   param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    #   if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#controller_ips_int[@]} ]]; then
+    #     # ${param::-4} removes the _int postfix from var name
+    #     controller_host="${controller_host} ${param::-4}=${param_val[i]}"
+    #   fi
+    # done
+    echo "$controller_host" >> ctrl_vms
   done
 
   cat >> ctrl_vms <<-EOF
@@ -32,10 +32,10 @@ controller_shared_secret="$controller_shared_secret_int"
 EOF
 
   for param in "${per_controller_params[@]}"; do
-    param_val=($(echo ${!param} | sed -e 's/,/ /g'))
-    if [[ ${#param_val[@]} -eq 1 ]]; then
-      echo "${param::-4}=${param_val[0]}" >> ctrl_vms
-    fi
+    param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    # if [[ ${#param_val[@]} -eq 1 ]]; then
+    echo "${param::-4}=${param_val[0]}" >> ctrl_vms
+    # fi
   done
 
 }
@@ -43,7 +43,7 @@ EOF
 # TODO: update this with params from https://github.com/yasensim/nsxt-ansible/blob/master/answerfile.yml
 function create_edge_hosts {
   echo "[edge_nodes]" > edge_vms
-  edge_ips_int=($(echo $edge_ips_int | sed -e 's/,/ /g'))
+  edge_ips_int=($(echo "$edge_ips_int" | sed -e 's/,/ /g'))
   per_edge_params=("edge_deployment_size_int" "vc_datacenter_for_edge_int" "vc_cluster_for_edge_int" "vc_datastore_for_edge_int" "vc_uplink_network_for_edge_int" "vc_overlay_network_for_edge_int" "vc_management_network_for_edge_int")
 
   num_edges=${#edge_ips_int[@]}
@@ -52,14 +52,14 @@ function create_edge_hosts {
     edge_ip=${edge_ips_int[i]}
     count=$((i+1))
     edge_host="edge-${count} ip=$edge_ip hostname=${hostname} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}"
-    for param in "${per_edge_params[@]}"; do
-      # test if a single value is provided or a list is
-      param_val=($(echo ${!param} | sed -e 's/,/ /g'))
-      if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#edge_ips_int[@]} ]]; then
-        edge_host="${edge_host} ${param::-4}=${param_val[i]}"
-      fi
-    done
-    echo $edge_host >> edge_vms
+    # for param in "${per_edge_params[@]}"; do
+    #   # test if a single value is provided or a list is
+    #   param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    #   if [[ ${#param_val[@]} -gt 1 && ${#param_val[@]} -eq ${#edge_ips_int[@]} ]]; then
+    #     edge_host="${edge_host} ${param::-4}=${param_val[i]}"
+    #   fi
+    # done
+    echo "$edge_host" >> edge_vms
   done
 
   cat >> edge_vms <<-EOF
@@ -69,17 +69,17 @@ edge_root_password="$edge_root_password_int"
 EOF
 
   for param in "${per_edge_params[@]}"; do
-    param_val=($(echo ${!param} | sed -e 's/,/ /g'))
-    if [[ ${#param_val[@]} -eq 1 ]]; then
-      echo "${param::-4}=${param_val[0]}" >> edge_vms
-    fi
+    param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
+    # if [[ ${#param_val[@]} -eq 1 ]]; then
+    echo "${param::-4}=${param_val[0]}" >> edge_vms
+    # fi
   done
 }
 
 function create_esx_hosts {
   count=1
   echo "[esx_hosts]" > esx_hosts
-  for esx_ip in $(echo $esx_ips_int | sed -e 's/,/ /g')
+  for esx_ip in $(echo "$esx_ips_int" | sed -e 's/,/ /g')
   do
     hostname="${esx_hostname_prefix_int}-${count}.${dns_domain_int}"
     cat >> esx_hosts <<-EOF
@@ -99,7 +99,7 @@ EOF
 function create_hosts {
 
 # TODO: set nsx manager fqdn
-export NSX_T_MANAGER_SHORT_HOSTNAME=$(echo $NSX_T_MANAGER_FQDN | awk -F '\.' '{print $1}')
+export NSX_T_MANAGER_SHORT_HOSTNAME=$(echo "$NSX_T_MANAGER_FQDN" | awk -F '\.' '{print $1}')
 
 cat > hosts <<-EOF
 [localhost]
