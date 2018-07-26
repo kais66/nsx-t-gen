@@ -71,10 +71,9 @@ if [ "$enable_ansible_debug_int" == "true" ]; then
 fi
 
 create_hosts
-# create_ansible_cfg
-# create_customize_ova_params
+cp ${PIPELINE_DIR}/tasks/install-nsx-t/get_mo_ref_id.py ./
+python get_mo_ref_id.py --host $vcenter_ip_int --user $vcenter_username_int --password $vcenter_password_int
 
-# cp hosts answerfile.yml ansible.cfg extra_yaml_args.yml customize_ova_vars.yml nsxt-ansible/.
 cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_topology.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
 cd nsxt-ansible
 

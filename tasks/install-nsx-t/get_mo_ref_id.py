@@ -195,7 +195,7 @@ class HostsFileWriter(object):
 if __name__ == "__main__":
     mr = MoRefIdRetriever()
     mr.build_mapping()
-    w = HostsFileWriter(mr, 'hosts', 'hosts.out')
+    w = HostsFileWriter(mr, 'hosts', 'hosts')
     try:
         w. process_hosts_file()
     except NoMoRefIdFoundError:
