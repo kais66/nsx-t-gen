@@ -72,10 +72,10 @@
           deployment_config:
             placement_type: VsphereClusterNodeVMDeploymentConfig
             vc_id: "{{compute_manager.id}}"
-            management_network_id: "{{hostvars[item].controller_management_network_id}}" # TODO vcip/mob manageObjectReference.
+            management_network_id: "{{hostvars[item].vc_management_network_for_controller_int}}"
             hostname: "{{hostvars[item].hostname}}"
-            compute_id: "{{hostvars[item].controller_compute_id}}" # TODO compute cluster ID, vcip/mob datacenter name -> host folder -> child entity, or see postfix string of url when click on the cluster name
-            storage_id: "{{hostvars[item].controller_storage_id}}" # https://10.40.1.206/mob/?moid=datacenter-20.
+            compute_id: "{{hostvars[item].vc_cluster_for_controller}}"
+            storage_id: "{{hostvars[item].vc_datastore_for_controller_int}}" # https://10.40.1.206/mob/?moid=datacenter-20.
             default_gateway_addresses:
             - "{{hostvars[item].default_gateway}}"
             management_port_subnets:
@@ -108,13 +108,13 @@
             placement_type: VsphereDeploymentConfig
             vc_id: "{{compute_manager.id}}"
             data_network_ids:
-            - "{{hostvars[item].edge_uplink_network_id}}"
-            - "{{hostvars[item].edge_overlay_network_id}}"
-            - "{{hostvars[item].edge_management_network_id}}"
-            management_network_id: "{{hostvars[item].edge_management_network_id}}"
+            - "{{hostvars[item].vc_uplink_network_for_edge}}"
+            - "{{hostvars[item].vc_overlay_network_for_edge_int}}"
+            - "{{hostvars[item].vc_management_network_for_edge_int}}"
+            management_network_id: "{{hostvars[item].vc_management_network_for_edge_int}}"
             hostname: "{{hostvars[item].hostname}}"
-            compute_id: "{{hostvars[item].edge_compute_id}}"
-            storage_id: "{{hostvars[item].edge_storage_id}}"
+            compute_id: "{{hostvars[item].vc_cluster_for_edge}}"
+            storage_id: "{{hostvars[item].vc_datastore_for_edge}}"
             default_gateway_addresses:
             - "{{hostvars[item].default_gateway}}"
             management_port_subnets:

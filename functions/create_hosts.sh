@@ -4,7 +4,7 @@ function create_controller_hosts {
   echo "[controllers]" > ctrl_vms
   # outer paren converts string to an array
   controller_ips_int=($(echo $controller_ips_int | sed -e 's/,/ /g'))
-  per_controller_params=("controller_deployment_size_int" "controller_compute_id_int" "controller_storage_id_int" "controller_management_network_id_int")
+  per_controller_params=("controller_deployment_size_int" "vc_datacenter_for_controller_int" "vc_datacenter_for_controller_int" "vc_datastore_for_controller_int" "vc_management_network_for_controller_int")
 
   num_controllers=${#controller_ips_int[@]}
   for ((i=0;i<$num_controllers;++i)); do
@@ -44,7 +44,8 @@ EOF
 function create_edge_hosts {
   echo "[edge_nodes]" > edge_vms
   edge_ips_int=($(echo $edge_ips_int | sed -e 's/,/ /g'))
-  per_edge_params=("edge_deployment_size_int" "edge_compute_id_int" "edge_storage_id_int" "edge_uplink_network_id_int" "edge_overlay_network_id_int" "edge_management_network_id_int")
+  per_edge_params=("edge_deployment_size_int" "vc_datacenter_for_edge_int" "vc_cluster_for_edge_int" "vc_datastore_for_edge_int" "vc_uplink_network_for_edge_int" "vc_overlay_network_for_edge_int" "vc_management_network_for_edge_int")
+
   num_edges=${#edge_ips_int[@]}
   hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
   for ((i=0;i<$num_edges;++i)); do
