@@ -167,12 +167,14 @@ class HostsFileWriter(object):
         try:
             id_var_name = next(id_var_name for id_var_name in
                                self.ids_to_replace if id_var_name in line)
+            print "found variable %s that needs to be converted to moRefId" % id_var_name
         except StopIteration:
             return line
 
         id_value = line.split('=')[-1].strip(" \"'")
         if id_var_name.startswith('vc_datacenter_'):
             self.current_datacenter = id_value
+            print "found datacenter specified as %s" % id_value
             return
 
         vc_object_type = id_var_name.split('_')[-3]
