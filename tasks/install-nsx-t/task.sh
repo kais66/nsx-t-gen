@@ -74,7 +74,7 @@ create_hosts
 cp ${PIPELINE_DIR}/tasks/install-nsx-t/get_mo_ref_id.py ./
 python get_mo_ref_id.py --host $vcenter_ip_int --user $vcenter_username_int --password $vcenter_password_int
 
-cp hosts ${PIPELINE_DIR}/nsxt_yaml/basic_topology.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
+cp hosts.out ${PIPELINE_DIR}/nsxt_yaml/basic_topology.yml ${PIPELINE_DIR}/nsxt_yaml/vars.yml nsxt-ansible/
 cd nsxt-ansible
 
 echo ""

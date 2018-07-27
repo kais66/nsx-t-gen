@@ -72,10 +72,10 @@
           deployment_config:
             placement_type: VsphereClusterNodeVMDeploymentConfig
             vc_id: "{{compute_manager.id}}"
-            management_network_id: "{{hostvars[item].vc_management_network_for_controller_int}}"
+            management_network_id: "{{hostvars[item].vc_management_network_for_controller}}"
             hostname: "{{hostvars[item].hostname}}"
             compute_id: "{{hostvars[item].vc_cluster_for_controller}}"
-            storage_id: "{{hostvars[item].vc_datastore_for_controller_int}}" # https://10.40.1.206/mob/?moid=datacenter-20.
+            storage_id: "{{hostvars[item].vc_datastore_for_controller}}" # https://10.40.1.206/mob/?moid=datacenter-20.
             default_gateway_addresses:
             - "{{hostvars[item].default_gateway}}"
             management_port_subnets:
@@ -109,9 +109,9 @@
             vc_id: "{{compute_manager.id}}"
             data_network_ids:
             - "{{hostvars[item].vc_uplink_network_for_edge}}"
-            - "{{hostvars[item].vc_overlay_network_for_edge_int}}"
-            - "{{hostvars[item].vc_management_network_for_edge_int}}"
-            management_network_id: "{{hostvars[item].vc_management_network_for_edge_int}}"
+            - "{{hostvars[item].vc_overlay_network_for_edge}}"
+            - "{{hostvars[item].vc_management_network_for_edge}}"
+            management_network_id: "{{hostvars[item].vc_management_network_for_edge}}"
             hostname: "{{hostvars[item].hostname}}"
             compute_id: "{{hostvars[item].vc_cluster_for_edge}}"
             storage_id: "{{hostvars[item].vc_datastore_for_edge}}"
