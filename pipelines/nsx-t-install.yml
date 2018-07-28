@@ -69,7 +69,6 @@ nsx_t_gen_params: &nsx-t-gen-params
   esx_hostname_prefix_int: ((esx_hostname_prefix))
   esx_available_vmnic_int: ((esx_available_vmnic))
 
-  nsx_t_pas_ncp_cluster_tag_int: ((nsx_t_pas_ncp_cluster_tag))
   nsx_t_t1router_logical_switches_spec_int: ((nsx_t_t1router_logical_switches_spec))
   nsx_t_ha_switching_profile_spec_int: ((nsx_t_ha_switching_profile_spec))
   nsx_t_container_ip_block_spec_int: ((nsx_t_container_ip_block_spec))
