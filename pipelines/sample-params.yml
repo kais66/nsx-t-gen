@@ -69,10 +69,6 @@ controller_vmname_prefix: controller-vm # Generated edge host name would be "NSX
 controller_cli_password: "Admin!23Admin" # Min 8 chars, upper, lower, num, special char
 controller_root_password: "Admin!23Admin"
 controller_deployment_size: "SMALL"
-# where to create controllers
-# controller_compute_id: "domain-c25"
-# controller_storage_id: "datastore-30"
-# controller_management_network_id: "network-33"
 vc_datacenter_for_controller: 1-datacenter-1080
 vc_cluster_for_controller: 1-cluster-729
 vc_datastore_for_controller: vdnetSharedStorage
@@ -93,11 +89,6 @@ edge_root_password: "Admin!23Admin"
 # edge_deployment_size: medium # Recommended for POCs, smaller setup (# of lbrs very limited)
 # edge_deployment_size: large  # Recommended when 4 small lbrs are required
 edge_deployment_size: "SMALL"
-# edge_compute_id: "domain-c25"
-# edge_storage_id: "datastore-30"
-# edge_uplink_network_id: "network-33"
-# edge_overlay_network_id: "network-33"
-# edge_management_network_id: "network-33"
 vc_datacenter_for_edge: 2-datacenter-1080
 vc_cluster_for_edge: 2-cluster-732
 vc_datastore_for_edge: vdnetSharedStorage

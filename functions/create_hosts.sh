@@ -125,7 +125,7 @@ dns_domain="$dns_domain_int"
 ntp_servers="$ntp_servers_int"
 default_gateway="$default_gateway_int"
 netmask="$netmask_int"
-nsx_image_webserver="nsx_image_webserver_int"
+nsx_image_webserver="$nsx_image_webserver_int"
 ova_file_name="$ova_file_name_int"
 
 nsx_manager_ip="$nsx_manager_ip_int"
