@@ -183,11 +183,20 @@ class HostsFileWriter(object):
         new_line = '%s=%s' % (id_var_name, mo_id)
         return new_line
 
+    def modify_deploy_size_if_matched(self, line):
+        new_line = line
+        if 'deployment_size' in line:
+            value = line.split('=')[-1].strip(" \"'")
+            var_name = line.split('=')[0]
+            new_line = '%s=%s' % (var_name, value.upper())
+        return new_line
+
     def process_hosts_file(self):
         lines = []
         with open(self.in_file, 'r') as f:
             for line in f:
                 new_line = self.modify_line_if_matched(line.strip())
+                new_line = self.modify_deploy_size_if_matched(new_line)
                 if new_line:
                     lines.append('%s\n' % new_line)
 
