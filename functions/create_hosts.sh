@@ -48,10 +48,11 @@ function create_edge_hosts {
   per_edge_params=("edge_deployment_size_int" "vc_datacenter_for_edge_int" "vc_cluster_for_edge_int" "vc_datastore_for_edge_int" "vc_uplink_network_for_edge_int" "vc_overlay_network_for_edge_int" "vc_management_network_for_edge_int")
 
   num_edges=${#edge_ips_int[@]}
-  hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
+
   for ((i=0;i<$num_edges;++i)); do
     edge_ip=${edge_ips_int[i]}
     count=$((i+1))
+    hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
     edge_host="edge-${count} ip=$edge_ip hostname=${hostname} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}"
     # for param in "${per_edge_params[@]}"; do
     #   # test if a single value is provided or a list is
