@@ -975,7 +975,9 @@ def create_all_t1_routers():
     logical_switches = t1_router['switches']
     for logical_switch_entry in logical_switches:
       logical_switch_name = logical_switch_entry['name']
-      logical_switch_subnet = logical_switch_entry['logical_switch_gw'] + logical_switch_entry['subnet_mask']
+      logical_switch_subnet = '%s/%s' % (
+          logical_switch_entry['logical_switch_gw'],
+          logical_switch_entry['subnet_mask'])
       create_logical_switch(logical_switch_name)
       associate_logical_switch_port(t1_router_name, logical_switch_name, logical_switch_subnet)
 
