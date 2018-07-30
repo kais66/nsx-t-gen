@@ -19,7 +19,6 @@ enable_ansible_debug: false # set value to true for verbose output from ansible
 vcenter_ip: 10.40.1.206
 vcenter_username: administrator@vsphere.local
 vcenter_password: "Admin!23"
-vcenter_folder: 1-folder-1080
 vcenter_datacenter: 1-datacenter-1080
 vcenter_cluster: 1-cluster-729
 vcenter_datastore: vdnetSharedStorage

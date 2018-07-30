@@ -11,7 +11,6 @@
         vcenter_user: "{{hostvars['localhost'].vcenter_username}}"
         vcenter_passwd: "{{hostvars['localhost'].vcenter_password}}"
         datacenter: "{{hostvars['localhost'].vcenter_datacenter}}"
-        folder: "{{hostvars['localhost'].vcenter_folder}}"
         datastore: "{{hostvars['localhost'].vcenter_datastore}}"
         portgroup: "{{hostvars['localhost'].mgmt_portgroup}}"
         cluster: "{{hostvars['localhost'].vcenter_cluster}}"

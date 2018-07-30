@@ -114,7 +114,6 @@ allowSSHRootAccess='True'
 vcenter_ip="$vcenter_ip_int"
 vcenter_username="$vcenter_username_int"
 vcenter_password="$vcenter_password_int"
-vcenter_folder="$vcenter_folder_int"
 vcenter_datacenter="$vcenter_datacenter_int"
 vcenter_cluster="$vcenter_cluster_int"
 vcenter_datastore="$vcenter_datastore_int"
