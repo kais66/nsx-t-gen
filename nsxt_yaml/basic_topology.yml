@@ -53,7 +53,17 @@
         force_basic_auth: yes
         validate_certs: no
 
-    - name: Restart install-upgrade service
+    - name: Get install-upgrade service status
+      uri:
+        method: GET
+        url: https://{{hostvars['localhost'].nsx_manager_ip}}/api/v1/node/services/install-upgrade/status
+        user: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        force_basic_auth: yes
+        validate_certs: no
+      register: iu_status
+
+    - name: Restart install-upgrade service if it's not running
       uri:
         method: POST
         url: https://{{hostvars['localhost'].nsx_manager_ip}}/api/v1/node/services/install-upgrade?action=restart
@@ -61,6 +71,7 @@
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         force_basic_auth: yes
         validate_certs: no
+      when: iu_status.json.runtime_state != "running"
 
     - name: Deploy compute manager
       nsxt_fabric_compute_managers:
