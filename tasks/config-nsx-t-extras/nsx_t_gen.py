@@ -246,11 +246,10 @@ def create_t0_logical_router_and_port(t0_router):
   logical_router_port_id=resp.json()['id']
   return router_id
 
-def create_t1_logical_router(router_name):
+def create_t1_logical_router(router_name, edge_cluster=False):
   api_endpoint = ROUTERS_ENDPOINT
 
   router_type='TIER1'
-  edge_cluster_id=get_edge_cluster_id()
 
   t1_router_id=check_logical_router(router_name)
   if t1_router_id is not None:
@@ -260,9 +259,12 @@ def create_t1_logical_router(router_name):
       'resource_type': 'LogicalRouter',
       'description': "Logical router of type {}, created by nsx-t-gen!!".format(router_type),
       'display_name': router_name,
-      'edge_cluster_id': edge_cluster_id,
       'router_type': router_type
     }
+
+  if edge_cluster:
+    payload['edge_cluster_id'] = get_edge_cluster_id()
+
   resp = client.post(api_endpoint, payload )
 
   router_id=resp.json()['id']
@@ -272,12 +274,14 @@ def create_t1_logical_router(router_name):
   return router_id
 
 
-def create_t1_logical_router_and_port(t0_router, t1_router_name):
+def create_t1_logical_router_and_port(t0_router, t1_router):
+  t1_router_name = t1_router['name']
+  edge_cluster = True if t1_router.get('edge_cluster') in ['true', True] else False
   api_endpoint = ROUTER_PORTS_ENDPOINT
 
   t0_router_id = t0_router['id']
   t0_router_name = t0_router['display_name']
-  t1_router_id=create_t1_logical_router(t1_router_name)
+  t1_router_id=create_t1_logical_router(t1_router_name, edge_cluster=edge_cluster)
 
   name = "LogicalRouterLinkPortFrom%sTo%s" % (t0_router_name, t1_router_name )
   descp = "Port created on %s router for %s" % (t0_router_name, t1_router_name )
@@ -971,7 +975,7 @@ def create_all_t1_routers():
     if t1_router_key in global_id_map:
         print "T1 router %s already exists, skip creating router for it" % t1_router_name
         continue
-    create_t1_logical_router_and_port(t0_router, t1_router_name)
+    create_t1_logical_router_and_port(t0_router, t1_router)
     logical_switches = t1_router['switches']
     for logical_switch_entry in logical_switches:
       logical_switch_name = logical_switch_entry['name']

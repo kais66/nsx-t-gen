@@ -74,6 +74,7 @@ vc_uplink_network_for_edge: "VM Network"
 vc_overlay_network_for_edge: "VM Network"
 vc_management_network_for_edge: "VM Network"
 
+# ESX hosts
 esx_ips: 10.40.1.211
 esx_os_version: "6.5.0"
 esx_root_password: "ca$hc0w"
@@ -161,6 +162,7 @@ nsx_t_t1router_logical_switches_spec: |
     - name: PAS-ERT
       logical_switch_gw: 192.168.24.1 # Last octet should be 1 rather than 0
       subnet_mask: 24
+    edge_cluster: true
 
   - name: T1-Router-PAS-Services
     switches:
