@@ -46,17 +46,21 @@
         user: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         body:
-          service_name: "install-upgrade",
+          service_name: "install-upgrade"
           service_properties:
             enabled: True
+        body_format: json
+        force_basic_auth: yes
+        validate_certs: no
 
-    - name: Start install-upgrade service
+    - name: Restart install-upgrade service
       uri:
         method: POST
         url: https://{{hostvars['localhost'].nsx_manager_ip}}/api/v1/node/services/install-upgrade?action=restart
         user: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
-
+        force_basic_auth: yes
+        validate_certs: no
 
     - name: Deploy compute manager
       nsxt_fabric_compute_managers:
