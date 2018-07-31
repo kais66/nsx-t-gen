@@ -1,18 +1,3 @@
-# Default Sizing of NSX-T VMs
-# Manager Sizing
-# small  : 2 vCPU,  8GB RAM
-# medium : 4 vCPU, 16GB RAM - default with OVA
-# large  : 8 vCPU, 32GB RAM
-# Controller Sizing
-# default: 4 vCPU, 16GB RAM
-# Edge Instance Sizing
-# small  : 2 vCPU,  4GB RAM - Too small - dont use
-# medium : 4 vCPU,  8GB RAM - default with OVA
-# large  : 8 vCPU, 16GB RAM
-
-# Controller is fixed to the 4 vCPU and 16 GB RAM
-# Change default size for deployment for edge and mgr
-
 enable_ansible_debug: false # set value to true for verbose output from ansible
 
 # vCenter details to deploy the Mgmt OVAs (Mgr, Edge, Controller)
@@ -45,10 +30,8 @@ nsx_manager_deployment_size: small   # Recommended for real barebones demo, smal
 compute_manager_username: "Administrator@vsphere.local"
 compute_manager_password: "Admin!23"
 
-# For outbound uplink connection used by Edge
-edge_uplink_profile_vlan: 0
-# For internal overlay connection used by Esxi hosts
-esxi_uplink_profile_vlan: 20
+edge_uplink_profile_vlan: 0 # For outbound uplink connection used by Edge
+esxi_uplink_profile_vlan: 20 # # For internal overlay connection used by Esxi hosts
 
 # Tunnel endpoint network ip pool
 # change pool_end based on # of members in the tep pool
@@ -83,10 +66,6 @@ edge_fabric_name_prefix: EdgeNode
 edge_transport_node_prefix: edge-transp-node
 edge_cli_password: "Admin!23Admin"
 edge_root_password: "Admin!23Admin"
-# Size of the edge determines size of loadbalancers and # of lbrs.
-# So, choose the size of edge based on requirements
-# edge_deployment_size: medium # Recommended for POCs, smaller setup (# of lbrs very limited)
-# edge_deployment_size: large  # Recommended when 4 small lbrs are required
 edge_deployment_size: "SMALL"
 vc_datacenter_for_edge: 2-datacenter-1080
 vc_cluster_for_edge: 2-cluster-732

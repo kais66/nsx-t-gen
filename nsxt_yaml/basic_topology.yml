@@ -38,6 +38,26 @@
         validate_certs: False
         wait_time: 50
 
+    # this should've been enabled already
+    - name: Enable install-upgrade service
+      uri:
+        method: PUT
+        url: https://{{hostvars['localhost'].nsx_manager_ip}}/api/v1/node/services/install-upgrade
+        user: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        body:
+          service_name: "install-upgrade",
+          service_properties:
+            enabled: True
+
+    - name: Start install-upgrade service
+      uri:
+        method: POST
+        url: https://{{hostvars['localhost'].nsx_manager_ip}}/api/v1/node/services/install-upgrade?action=restart
+        user: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+
+
     - name: Deploy compute manager
       nsxt_fabric_compute_managers:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
