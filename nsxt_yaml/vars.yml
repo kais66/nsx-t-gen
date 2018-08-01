@@ -42,3 +42,4 @@ edge_fabric_node_name: "EdegeNode1"
 edge_cluster_name: "edge-cluster-1"
 
 vlan_logical_switch: "uplink-vlan-ls"
+vlan_logical_switch_vlan: 0

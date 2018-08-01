@@ -196,8 +196,7 @@
         replication_mode: SOURCE
         admin_state: UP
         transport_zone_name: "{{vlan_transport_zone}}"
-        # TODO: which vlan id to use?
-        vlan: 307
+        vlan: "{{vlan_logical_switch_vlan}}"
         state: present
 
     ## module not working yet
