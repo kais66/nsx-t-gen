@@ -163,6 +163,7 @@ nsx_t_t1router_logical_switches_spec: |
       logical_switch_gw: 192.168.24.1 # Last octet should be 1 rather than 0
       subnet_mask: 24
     edge_cluster: true
+    advertise_lb_vip: true
 
   - name: T1-Router-PAS-Services
     switches:
@@ -207,21 +208,10 @@ nsx_t_container_ip_block_spec: |
   container_ip_blocks:
   - name: container-ip-block
     cidr: 10.4.0.0/16
-    # Specify tags with PAS 2.0 and NSX Tile 2.1.0
-    # Tags not needed for PAS 2.1 and NSX Tile 2.1.3
-    tags:
-      ncp/cluster: 'pas1' # Should match the top level ncp/cluster tag value
-      testtag: 'testpas1'
   - name: node-container-ip-block-pks-with-tag
     cidr: 11.4.0.0/16
-    ncp/shared_resource: 'true'
-    # No tags for this block
   - name: pod-container-ip-block-pks-with-tag
     cidr: 12.4.0.0/16
-    ncp/shared_resource: 'true'
-    # No tags for this block
-
-
 
 # Make sure the ncp/cluster tag matches the one defined on the T0 Router for PAS
 # Make sure the ncp/shared tag is set to true for PKS

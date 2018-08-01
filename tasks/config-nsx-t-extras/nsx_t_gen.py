@@ -35,23 +35,26 @@ cache = {}
 
 TIER1 = "TIER1"
 TIER0 = "TIER0"
+IP_BLOCK = 'IP_BLOCK'
+IP_POOL = 'IP_POOL'
 
 
 def init():
-  nsx_mgr_ip          = os.getenv('nsx_manager_ip_int')
-  nsx_mgr_user        = os.getenv('nsx_manager_username_int', 'admin')
-  nsx_mgr_pwd         = os.getenv('nsx_manager_password_int')
+    nsx_mgr_ip          = os.getenv('nsx_manager_ip_int')
+    nsx_mgr_user        = os.getenv('nsx_manager_username_int', 'admin')
+    nsx_mgr_pwd         = os.getenv('nsx_manager_password_int')
 
-  nsx_mgr_context     = {
+    nsx_mgr_context     = {
                           'admin_user' : nsx_mgr_user,
                           'url': 'https://' + nsx_mgr_ip,
                           'admin_passwd' : nsx_mgr_pwd
                         }
-  # TODO: the value of transport zone name is current static, and hidden from user.
-  # see vars.yml
-  global_id_map['DEFAULT_TRANSPORT_ZONE_NAME'] = 'overlay-tz'
+    # TODO: the value of transport zone name is current static, and hidden from user.
+    # see vars.yml
+    global_id_map['DEFAULT_TRANSPORT_ZONE_NAME'] = 'overlay-tz'
 
-  client.set_context(nsx_mgr_context)
+    client.set_context(nsx_mgr_context)
+
 
 def print_global_ip_map():
   print '-----------------------------------------------'
@@ -59,8 +62,26 @@ def print_global_ip_map():
     print(" {} : {}".format(key, global_id_map[key]))
   print '-----------------------------------------------'
 
-def load_edge_clusters():
 
+def load_ip_blocks():
+    resp = client.get(CONTAINER_IP_BLOCKS_ENDPOINT)
+    for result in resp.json()['results']:
+        ip_block_name = result['display_name']
+        ip_block_key = '%s:%s' % (IP_BLOCK, ip_block_name)
+        global_id_map[ip_block_key] = result['id']
+        cache[ip_block_key] = result
+
+
+def load_ip_pools():
+    resp = client.get(EXTERNAL_IP_POOL_ENDPOINT)
+    for result in resp.json()['results']:
+        ip_pool_name = result['display_name']
+        ip_pool_key = '%s:%s' % (IP_POOL, ip_pool_name)
+        global_id_map[ip_pool_key] = result['id']
+        cache[ip_pool_key] = result
+
+
+def load_edge_clusters():
   api_endpoint = EDGE_CLUSTERS_ENDPOINT
   resp=client.get(api_endpoint)
   for result in resp.json()['results']:
@@ -69,6 +90,7 @@ def load_edge_clusters():
     global_id_map['EDGE_CLUSTER:'+edge_cluster_name] = edge_cluster_id
     if global_id_map.get('DEFAULT_EDGE_CLUSTER_NAME') is None:
       global_id_map['DEFAULT_EDGE_CLUSTER_NAME'] = edge_cluster_name
+
 
 def get_edge_cluster():
 
@@ -83,13 +105,6 @@ def get_edge_cluster_id():
   default_edge_cluster_name = get_edge_cluster()
   return global_id_map['EDGE_CLUSTER:' + default_edge_cluster_name]
 
-# def get_edge_cluster_id(edge_cluster_name):
-
-#   if edge_cluster_name is not None and edge_cluster_name != '':
-#     return global_id_map['EDGE_CLUSTER:' + edge_cluster_name]
-
-#   default_edge_cluster_name = get_edge_cluster()
-#   return global_id_map['EDGE_CLUSTER:' + default_edge_cluster_name]
 
 def load_transport_zones():
   api_endpoint = TRANSPORT_ZONES_ENDPOINT
@@ -425,31 +440,36 @@ def associate_logical_switch_port(t1_router_name, logical_switch_name, subnet):
   return logical_router_port_id
 
 def create_container_ip_block(ip_block_name, cidr, tags):
-  api_endpoint = CONTAINER_IP_BLOCKS_ENDPOINT
+    api_endpoint = CONTAINER_IP_BLOCKS_ENDPOINT
 
-  payload={
-      'resource_type': 'IpBlock',
-      'display_name': ip_block_name,
-      'cidr': cidr
+    payload={
+        'resource_type': 'IpBlock',
+        'display_name': ip_block_name,
+        'cidr': cidr
     }
-  effective_tags = [ ]
-  for key in tags:
-    entry = { 'scope': key, 'tag': tags[key] }
-    effective_tags.append(entry)
-  payload['tags'] = effective_tags
+    effective_tags = []
+    for key in tags:
+        entry = {
+            'scope': key, 'tag': tags[key]
+        }
+        effective_tags.append(entry)
+    payload['tags'] = effective_tags
 
-  resp = client.post(api_endpoint, payload )
+    resp = client.post(api_endpoint, payload )
 
-  ip_block_id=resp.json()['id']
-  print("Created Container IP Block '{}' with cidr: {}".format(ip_block_name, cidr))
+    ip_block_id=resp.json()['id']
+    print("Created Container IP Block '{}' with cidr: {}".format(ip_block_name, cidr))
 
-  global_id_map['IPBLOCK:' + ip_block_name] = ip_block_id
-  return ip_block_id
+    ip_block_key = '%s:%s' % (IP_BLOCK, ip_block_name)
+    global_id_map[ip_block_key] = ip_block_id
+    cache[ip_block_key] = resp.json()
+    return ip_block_id
+
 
 def create_external_ip_pool(ip_pool_name, cidr, gateway, start_ip, end_ip, tags):
-  api_endpoint = EXTERNAL_IP_POOL_ENDPOINT
+    api_endpoint = EXTERNAL_IP_POOL_ENDPOINT
 
-  payload={
+    payload={
       'resource_type': 'IpPool',
       'display_name': ip_pool_name,
       'subnets' : [ {
@@ -463,21 +483,22 @@ def create_external_ip_pool(ip_pool_name, cidr, gateway, start_ip, end_ip, tags)
        } ],
     }
 
-  effective_tags = [ ]
-  for key in tags:
-    entry = { 'scope': key, 'tag': tags[key] }
-    effective_tags.append(entry)
-  effective_tags.append( { 'scope' : 'ncp/external', 'tag': 'true' } )
+    effective_tags = [ ]
+    for key in tags:
+        entry = { 'scope': key, 'tag': tags[key] }
+        effective_tags.append(entry)
+    effective_tags.append( { 'scope' : 'ncp/external', 'tag': 'true' } )
 
-  payload['tags'] = effective_tags
+    payload['tags'] = effective_tags
 
-  resp = client.post(api_endpoint, payload )
+    resp = client.post(api_endpoint, payload )
 
-  ip_pool_id=resp.json()['id']
-  print("Created External IP Pool '{}' with cidr: {}, gateway: {}, start: {},"
-    + " end: {}".format(ip_pool_name, cidr, gateway, start_ip, end_ip))
-  global_id_map['IPPOOL:' + ip_pool_name] = ip_pool_id
-  return ip_pool_id
+    ip_pool_id=resp.json()['id']
+    print("Created External IP Pool '{}' with cidr: {}, gateway: {}, start: {}, end: {}".format(ip_pool_name, cidr, gateway, start_ip, end_ip))
+    ip_pool_key = '%s:%s' % (IP_POOL, ip_pool_name)
+    global_id_map[ip_pool_key] = ip_pool_id
+    cache[ip_pool_key] = resp.json()
+    return ip_pool_id
 
 def create_pas_tags():
   pas_tag_name   = os.getenv('NSX_T_PAS_NCP_CLUSTER_TAG')
@@ -490,39 +511,39 @@ def create_pas_tags():
           }
   return pas_tags
 
-def create_container_ip_blocks():
-  ip_blocks_defn = os.getenv('nsx_t_container_ip_block_spec_int', '').strip()
-  if ip_blocks_defn == ''  or ip_blocks_defn == 'null':
-    print('No yaml payload set for the nsx_t_container_ip_block_spec_int, ignoring Container IP Block section!')
-    return
 
-  ip_blocks = yaml.load(ip_blocks_defn)
-  for ip_block in ip_blocks['container_ip_blocks']:
-    ip_block_name   = ip_block('name')
-    ip_block_cidr   = ip_block('cidr')
-    container_ip_block_id = create_container_ip_block(ip_block_name, ip_block_cidr, ip_block['tags'])
-    #update_tag(CONTAINER_IP_BLOCKS_ENDPOINT + '/' + container_ip_block_id, create_pas_tags())
+def create_container_ip_blocks():
+    ip_blocks_defn = os.getenv('nsx_t_container_ip_block_spec_int', '').strip()
+    if ip_blocks_defn == ''  or ip_blocks_defn == 'null':
+        print('No yaml payload set for the nsx_t_container_ip_block_spec_int, ignoring Container IP Block section!')
+        return
+
+    ip_blocks = yaml.load(ip_blocks_defn)
+    for ip_block in ip_blocks['container_ip_blocks']:
+        ip_block_key = '%s:%s' % (IP_BLOCK, ip_block['name'])
+        if ip_block_key in cache:
+            print "IP block %s already exists, skip creation" % ip_block['name']
+            continue
+        ip_block_name   = ip_block('name')
+        ip_block_cidr   = ip_block('cidr')
+        create_container_ip_block(ip_block_name, ip_block_cidr, ip_block['tags'])
+
 
 def create_external_ip_pools():
-  ip_pools_defn = os.getenv('nsx_t_external_ip_pool_spec_int', '').strip()
-  if ip_pools_defn == '' or ip_pools_defn == 'null' :
-    print('No yaml payload set for the NSX_T_EXTERNAL_IP_POOL_SPEC, ignoring External IP Pool section!')
-    return
+    ip_pools_defn = os.getenv('nsx_t_external_ip_pool_spec_int', '').strip()
+    if ip_pools_defn == '' or ip_pools_defn == 'null' :
+        print('No yaml payload set for the NSX_T_EXTERNAL_IP_POOL_SPEC, ignoring External IP Pool section!')
+        return
 
-  ip_pools    = yaml.load(ip_pools_defn)
-  for ip_pool in ip_pools['external_ip_pools']:
-    ip_pool_id - create_external_ip_pool(ip_pool['name'],
-                            ip_pool['cidr'],
-                            ip_pool['gateway'],
-                            ip_pool['start'],
-                            ip_pool['end'],
-                            ip_pool['tags'])
-
-    external_ip_pool_profile_tags = {
-                                'ncp/cluster': pas_tag_name ,
-                                'ncp/external': 'true'
-                              }
-    #update_tag(EXTERNAL_IP_POOL_ENDPOINT + '/' + ip_pool_id, external_ip_pool_profile_tags)
+    ip_pools = yaml.load(ip_pools_defn)
+    for ip_pool in ip_pools['external_ip_pools']:
+        ip_pool_key = '%s:%s' % (IP_POOL, ip_pool['name'])
+        if ip_pool_key in cache:
+            print "IP pool %s already exists, skip creation" % ip_pool['name']
+            continue
+        create_external_ip_pool(
+            ip_pool['name'], ip_pool['cidr'], ip_pool['gateway'],
+            ip_pool['start'], ip_pool['end'], ip_pool['tags'])
 
 
 def create_ha_switching_profile():
@@ -1010,36 +1031,39 @@ def create_all_t1_routers():
     advertise_lb_vip = True if t1_router.get('advertise_lb_vip') in ['true', True] else False
     enable_route_advertisement(t1_router_id, advertise_lb_vip=advertise_lb_vip)
 
+
 def main():
+    init()
+    load_edge_clusters()
+    load_transport_zones()
+    load_logical_routers()
+    load_loadbalancer_monitors()
+    load_loadbalancer_app_profiles()
+    load_loadbalancer_persistence_profiles()
+    load_ip_blocks()
+    load_ip_pools()
 
-  init()
-  load_edge_clusters()
-  load_transport_zones()
-  load_logical_routers()
-  load_loadbalancer_monitors()
-  load_loadbalancer_app_profiles()
-  load_loadbalancer_persistence_profiles()
+    # No support for switching profile in the ansible script yet
+    # So create directly
+    create_ha_switching_profile()
 
-  #print_global_ip_map()
+    # # Set the route redistribution
+    set_t0_route_redistribution()
 
-  # No support for switching profile in the ansible script yet
-  # So create directly
-  create_ha_switching_profile()
+    # #print_t0_route_nat_rules()
+    add_t0_route_nat_rules()
 
-  # # Set the route redistribution
-  set_t0_route_redistribution()
+    create_all_t1_routers()
 
-  # #print_t0_route_nat_rules()
-  add_t0_route_nat_rules()
+    create_container_ip_blocks()
+    create_external_ip_pools()
 
-  create_all_t1_routers()
+    # Add Loadbalancers, update if already existing
+    add_loadbalancers()
 
-  # Add Loadbalancers, update if already existing
-  add_loadbalancers()
-
-  # Push this to the last step as the login gets kicked off
-  # Generate self-signed cert
-  generate_self_signed_cert()
+    # Push this to the last step as the login gets kicked off
+    # Generate self-signed cert
+    generate_self_signed_cert()
 
 if __name__ == '__main__':
   main()
