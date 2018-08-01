@@ -316,7 +316,28 @@ def create_t1_logical_router_and_port(t0_router, t1_router):
   resp = client.post(api_endpoint, payload2)
   print("Created Logical Router Port between T0Router: '{}' and T1Router: '{}'".format(t0_router_name, t1_router_name))
   logical_router_port_id=resp.json()['id']
-  return logical_router_port_id
+  return t1_router_id
+
+def enable_route_advertisement(router_id, advertise_lb_vip=False):
+  route_adv = 'routing/advertisement'
+  route_adv_endpoint = '%s/%s/%s' % (ROUTERS_ENDPOINT, router_id, route_adv)
+
+  route_adv_resp = client.get(route_adv_endpoint).json()
+
+  payload = {
+      "enabled": True,
+      "resource_type": "AdvertisementConfig",
+      "advertise_nsx_connected_routes": True,
+  }
+  if advertise_lb_vip:
+      payload['advertise_lb_vip'] = True
+
+  route_adv_resp.update(payload)
+
+  resp = client.put(route_adv_endpoint, route_adv_resp)
+  adv_lb_vip_msg = 'and LB' if advertise_lb_vip else ''
+  print("Enabled route advertisements {}on T1 Router: {}".format(adv_lb_vip_msg, router_id))
+  # TODO: check response code
 
 def check_logical_switch(logical_switch):
   api_endpoint = SWITCHES_ENDPOINT
@@ -972,18 +993,22 @@ def create_all_t1_routers():
     t1_router_name = t1_router['name']
     # check if it already exists
     t1_router_key = build_router_key(TIER1, t1_router_name)
-    if t1_router_key in global_id_map:
+    if t1_router_key not in global_id_map:
+      t1_router_id = create_t1_logical_router_and_port(t0_router, t1_router)
+      logical_switches = t1_router['switches']
+      for logical_switch_entry in logical_switches:
+        logical_switch_name = logical_switch_entry['name']
+        logical_switch_subnet = '%s/%s' % (
+            logical_switch_entry['logical_switch_gw'],
+            logical_switch_entry['subnet_mask'])
+        create_logical_switch(logical_switch_name)
+        associate_logical_switch_port(t1_router_name, logical_switch_name, logical_switch_subnet)
+    else:
         print "T1 router %s already exists, skip creating router for it" % t1_router_name
-        continue
-    create_t1_logical_router_and_port(t0_router, t1_router)
-    logical_switches = t1_router['switches']
-    for logical_switch_entry in logical_switches:
-      logical_switch_name = logical_switch_entry['name']
-      logical_switch_subnet = '%s/%s' % (
-          logical_switch_entry['logical_switch_gw'],
-          logical_switch_entry['subnet_mask'])
-      create_logical_switch(logical_switch_name)
-      associate_logical_switch_port(t1_router_name, logical_switch_name, logical_switch_subnet)
+        t1_router_id = global_id_map[t1_router_key]
+
+    advertise_lb_vip = True if t1_router.get('advertise_lb_vip') in ['true', True] else False
+    enable_route_advertisement(t1_router_id, advertise_lb_vip=advertise_lb_vip)
 
 def main():
 
