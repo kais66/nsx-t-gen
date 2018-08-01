@@ -447,13 +447,15 @@ def create_container_ip_block(ip_block_name, cidr, tags):
         'display_name': ip_block_name,
         'cidr': cidr
     }
-    effective_tags = []
-    for key in tags:
-        entry = {
-            'scope': key, 'tag': tags[key]
-        }
-        effective_tags.append(entry)
-    payload['tags'] = effective_tags
+
+    if tags:
+        effective_tags = []
+        for key in tags:
+            entry = {
+                'scope': key, 'tag': tags[key]
+            }
+            effective_tags.append(entry)
+        payload['tags'] = effective_tags
 
     resp = client.post(api_endpoint, payload )
 
@@ -483,17 +485,22 @@ def create_external_ip_pool(ip_pool_name, cidr, gateway, start_ip, end_ip, tags)
        } ],
     }
 
-    effective_tags = [ ]
-    for key in tags:
-        entry = { 'scope': key, 'tag': tags[key] }
-        effective_tags.append(entry)
-    effective_tags.append( { 'scope' : 'ncp/external', 'tag': 'true' } )
+    if tags:
+        effective_tags = [ ]
+        for key in tags:
+            entry = { 'scope': key, 'tag': tags[key] }
+            effective_tags.append(entry)
+        effective_tags.append( { 'scope' : 'ncp/external', 'tag': 'true' } )
 
-    payload['tags'] = effective_tags
+        payload['tags'] = effective_tags
 
-    resp = client.post(api_endpoint, payload )
+    resp = client.post(api_endpoint, payload)
+    if not resp.ok:
+        print "Error: IP pool not created for %s" % ip_pool_name
+        print resp.json()
+        return
 
-    ip_pool_id=resp.json()['id']
+    ip_pool_id = resp.json()['id']
     print("Created External IP Pool '{}' with cidr: {}, gateway: {}, start: {}, end: {}".format(ip_pool_name, cidr, gateway, start_ip, end_ip))
     ip_pool_key = '%s:%s' % (IP_POOL, ip_pool_name)
     global_id_map[ip_pool_key] = ip_pool_id
@@ -524,9 +531,7 @@ def create_container_ip_blocks():
         if ip_block_key in cache:
             print "IP block %s already exists, skip creation" % ip_block['name']
             continue
-        ip_block_name   = ip_block('name')
-        ip_block_cidr   = ip_block('cidr')
-        create_container_ip_block(ip_block_name, ip_block_cidr, ip_block['tags'])
+        create_container_ip_block(ip_block['name'], ip_block['cidr'], ip_block.get('tags'))
 
 
 def create_external_ip_pools():
@@ -542,8 +547,8 @@ def create_external_ip_pools():
             print "IP pool %s already exists, skip creation" % ip_pool['name']
             continue
         create_external_ip_pool(
-            ip_pool['name'], ip_pool['cidr'], ip_pool['gateway'],
-            ip_pool['start'], ip_pool['end'], ip_pool['tags'])
+            ip_pool['name'], ip_pool['cidr'], ip_pool.get('gateway'),
+            ip_pool['start'], ip_pool['end'], ip_pool.get('tags'))
 
 
 def create_ha_switching_profile():
