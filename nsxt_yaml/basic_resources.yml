@@ -199,37 +199,37 @@
         vlan: "{{vlan_logical_switch_vlan}}"
         state: present
 
-    ## module not working yet
-    # - name: Logical Switch Port for uplink1
-    #   nsxt_logical_ports:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     logical_switch_name: "{{vlan_logical_switch}}"
-    #     # attachment:
-    #     #   attachment_type: VIF
-    #     #   id: vif1
-    #     admin_state: UP
-    #     state: present
+    - name: Logical Switch Port for uplink1
+      nsxt_logical_ports:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: lsp_for_uplink_1
+        logical_switch_name: "{{vlan_logical_switch}}"
+        admin_state: UP
+        state: present
+      register: vlan_lsp
 
-    # ## configure uplink port
-    # - name: t0 uplink port
-    #   nsxt_logical_routers_ports:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     resource_type: LogicalRouterDownLinkPort
-    #     logical_router_id: "723c1e3e-c82c-4243-bba0-2e1ef4815143"
-    #     linked_logical_switch_port_id:
-    #       target_type: LogicalPort
-    #       target_id: "18691381-b08f-4d90-8c0c-98d0e449b141"
-    #     subnets:
-    #     - ip_addresses:
-    #       - "172.16.40.1"
-    #       prefix_length: 24
-    #     state: present
+    - name: Create logical router port
+      nsxt_logical_router_ports:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: t0_uplink_1
+        resource_type: LogicalRouterUpLinkPort
+        logical_router_id: "{{t0.id}}"
+        linked_logical_switch_port_id:
+          target_type: LogicalPort
+          target_id: "{{vlan_lsp.id}}"
+        subnets:
+        - ip_addresses:
+          - "{{t0_uplink_port_ip}}"
+          prefix_length: "{{t0_uplink_port_subnet}}"
+        edge_cluster_member_index:
+          - 0
+        state: "present"
 
 ## TODO: need logical router uplink port module support
 ## nsxt_t0_uplink, nsxt_t0_ha_vip, nsxt_static_route

@@ -43,3 +43,5 @@ edge_cluster_name: "edge-cluster-1"
 
 vlan_logical_switch: "uplink-vlan-ls"
 vlan_logical_switch_vlan: 0
+t0_uplink_port_ip: 172.60.0.1
+t0_uplink_port_subnet: 24
