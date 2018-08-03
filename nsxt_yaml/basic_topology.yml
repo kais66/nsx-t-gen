@@ -38,6 +38,9 @@
         validate_certs: False
         wait_time: 50
 
+    - name: Wait 2 minutes before accessing NSX Manager API
+      pause: minutes=2
+
     # this should've been enabled already
     - name: Enable install-upgrade service
       uri:
@@ -89,7 +92,6 @@
         state: present
       register: compute_manager
 
-# TODO: Not idempotent
     - name: Deploy controller
       nsxt_controllers:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
@@ -109,7 +111,7 @@
             management_network_id: "{{hostvars[item].vc_management_network_for_controller}}"
             hostname: "{{hostvars[item].hostname}}"
             compute_id: "{{hostvars[item].vc_cluster_for_controller}}"
-            storage_id: "{{hostvars[item].vc_datastore_for_controller}}" # https://10.40.1.206/mob/?moid=datacenter-20.
+            storage_id: "{{hostvars[item].vc_datastore_for_controller}}"
             default_gateway_addresses:
             - "{{hostvars[item].default_gateway}}"
             management_port_subnets:
@@ -122,6 +124,7 @@
           join_to_existing_cluster: false
         state: present
       with_items: "{{groups['controllers']}}"
+      register: controller_response
 
     - name: Add Edge VM
       nsxt_fabric_nodes:
