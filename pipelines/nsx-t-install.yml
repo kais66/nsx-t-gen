@@ -68,6 +68,11 @@ nsx_t_gen_params: &nsx-t-gen-params
   esx_hostname_prefix_int: ((esx_hostname_prefix))
   esx_available_vmnic_int: ((esx_available_vmnic))
 
+  tier0_router_name_int: ((tier0_router_name))
+  tier0_uplink_port_ip_int: ((tier0_uplink_port_ip))
+  tier0_uplink_port_subnet_int: ((tier0_uplink_port_subnet))
+  tier0_uplink_next_hop_ip_int: ((tier0_uplink_next_hop_ip))
+
   nsx_t_t1router_logical_switches_spec_int: ((nsx_t_t1router_logical_switches_spec))
   nsx_t_ha_switching_profile_spec_int: ((nsx_t_ha_switching_profile_spec))
   nsx_t_container_ip_block_spec_int: ((nsx_t_container_ip_block_spec))

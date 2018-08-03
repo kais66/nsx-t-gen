@@ -225,11 +225,47 @@
           target_id: "{{vlan_lsp.id}}"
         subnets:
         - ip_addresses:
-          - "{{t0_uplink_port_ip}}"
-          prefix_length: "{{t0_uplink_port_subnet}}"
+          - "{{hostvars['localhost'].tier0_uplink_port_ip}}"
+          prefix_length: "{{hostvars['localhost'].tier0_uplink_port_subnet}}"
         edge_cluster_member_index:
           - 0
-        state: "present"
+        state: present
+
+    - name: Add static routes
+      nsxt_logical_router_static_routes:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        logical_router_id: "{{t0.id}}"
+        next_hops:
+        - administrative_distance: '1'
+          ip_address: "{{hostvars['localhost'].tier0_uplink_next_hop_ip}}"
+        network: 0.0.0.0/0
+        state: present
+
+    # - name: NSX-T T0 Logical Router
+    #   nsxt_logical_routers:
+    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
+    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
+    #     validate_certs: False
+    #     resource_type: LogicalRouter
+    #     description: "NSX-T T0 Logical Router"
+    #     display_name: "{{hostvars['localhost'].tier0_router_name}}"
+    #     edge_cluster_name: "{{ edge_cluster_name }}"
+    #     router_type: TIER0
+    #     high_availability_mode: ACTIVE_STANDBY
+    #     advanced_config:
+    #       ha_vip_configs:
+    #       - enabled: True
+    #         ha_vip_subnets:
+    #         - active_vip_addresses: 10.13.12.103
+    #           prefix_length: 27
+    #         redundant_uplink_port_ids:
+    #         - "{{vlan_lsp.id}}"
+    #     state: present
+    #   register: t0
 
 ## TODO: need logical router uplink port module support
 ## nsxt_t0_uplink, nsxt_t0_ha_vip, nsxt_static_route

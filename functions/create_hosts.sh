@@ -144,7 +144,11 @@ vtep_ip_pool_cidr="$vtep_ip_pool_cidr_int"
 vtep_ip_pool_gateway="$vtep_ip_pool_gateway_int"
 vtep_ip_pool_start="$vtep_ip_pool_start_int"
 vtep_ip_pool_end="$vtep_ip_pool_end_int"
+
 tier0_router_name="$tier0_router_name_int"
+tier0_uplink_port_ip="$tier0_uplink_port_ip_int"
+tier0_uplink_port_subnet="$tier0_uplink_port_subnet_int"
+tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
 
 EOF
 

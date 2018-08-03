@@ -40,7 +40,6 @@ vtep_ip_pool_cidr: 192.168.213.0/24
 vtep_ip_pool_gateway: 192.168.213.1
 vtep_ip_pool_start: 192.168.213.10
 vtep_ip_pool_end: 192.168.213.200
-tier0_router_name: "DefaultT0Router"
 
 ## Controllers
 controller_ips: 10.40.0.21
@@ -81,6 +80,11 @@ esx_root_password: "ca$hc0w"
 esx_hostname_prefix: "esx-host"
 esx_available_vmnic: "vmnic1"
 
+# Tier 0 router
+tier0_router_name: "DefaultT0Router"
+tier0_uplink_port_ip: 172.60.0.1
+tier0_uplink_port_subnet: 24
+tier0_uplink_next_hop_ip: 10.13.12.1
 
 # nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
 # nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
