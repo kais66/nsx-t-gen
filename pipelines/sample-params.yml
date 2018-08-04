@@ -41,6 +41,8 @@ vtep_ip_pool_gateway: 192.168.213.1
 vtep_ip_pool_start: 192.168.213.10
 vtep_ip_pool_end: 192.168.213.200
 
+resource_reservation_off: true
+
 ## Controllers
 controller_ips: 10.40.0.21
 controller_default_gateway: 10.40.1.253
