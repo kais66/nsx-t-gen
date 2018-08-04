@@ -38,7 +38,6 @@ uplink_profiles:
     policy: FAILOVER_ORDER
   transport_vlan: "{{hostvars['localhost'].esxi_uplink_profile_vlan}}"
 
-edge_fabric_node_name: "EdegeNode1"
 edge_cluster_name: "edge-cluster-1"
 
 vlan_logical_switch: "uplink-vlan-ls"
