@@ -2,7 +2,7 @@
 # python turn_off_reservation.py --host 10.40.1.206 \
 #                                --user administrator@vsphere.local \
 #                                --password 'Admin!23' \
-#                                --vm_list vm_name1,vm_name2
+#                                --vm_list ip1,ip2
 
 from pyVmomi import vim
 
@@ -48,7 +48,7 @@ def get_args():
     parser.add_argument('-v', '--vm_list',
                         required=True,
                         action='store',
-                        help='Comma separated list of VM names')
+                        help='Comma separated list of VM IP')
 
     args = parser.parse_args()
     return args
@@ -70,10 +70,10 @@ class ResourceReservationManager(object):
         atexit.register(Disconnect, si)
 
         self.content = si.RetrieveContent()
-        self.vm_names = []
+        self.vm_ips = []
         try:
-            self.vm_names = [vm_name.strip() for vm_name
-                             in args.vm_list.split(',') if vm_name]
+            self.vm_ips = [vm_ip.strip() for vm_ip
+                           in args.vm_list.split(',') if vm_ip]
         except Exception:
             print "Error parsing vm_list: %s" % args.vm_list
 
@@ -82,11 +82,16 @@ class ResourceReservationManager(object):
         self.vm_obj_list = objview.view
         objview.Destroy()
 
-    def _get_vm_by_name(self, vm_name):
-        for vm in self.vm_obj_list:
-            if vm.name == vm_name:
-                return vm
-        print "No VM found for %s" % vm_name
+    def _get_vm_by_ip(self, vm_ip):
+        try:
+            for vm in self.vm_obj_list:
+                for net in vm.guest.net:
+                    for ip in net.ipAddress:
+                        if ip == vm_ip:
+                            return vm
+        except Exception as e:
+            print e
+        print "No VM found for %s" % vm_ip
 
     def _power_on_vm_if_off(self, vm):
         if format(vm.runtime.powerState) == "poweredOff":
@@ -118,9 +123,10 @@ class ResourceReservationManager(object):
             print 'unable to turn off reservation due to error: %s' % e
 
     def process(self):
-        for vm_name in self.vm_names:
-            vm = self._get_vm_by_name(vm_name)
+        for vm_ip in self.vm_ips:
+            vm = self._get_vm_by_ip(vm_ip)
             if vm:
+                # pdb.set_trace()
                 print "Trying to turn off reservation for VM %s" % vm.name
                 self.turn_off_vm_memory_reservation(vm)
                 print ''

@@ -92,6 +92,19 @@
         state: present
       register: compute_manager
 
+    - name: Install pyvmomi tools dependency
+      shell: "cd /tmp; git clone https://github.com/vmware/pyvmomi-community-samples.git; cp -r pyvmomi-community-samples/samples/tools /usr/local/lib/python2.7/dist-packages"
+      when:
+        - hostvars['localhost'].resource_reservation_off is defined
+
+    - name: Turn off memory reservation for controller and edge VMs and power them on
+      command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].ip}}
+      with_items:
+        - "{{groups['controllers']}}"
+        - "{{groups['edge_nodes']}}"
+      when:
+        - hostvars['localhost'].resource_reservation_off is defined
+
     - name: Deploy controller
       nsxt_controllers:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
