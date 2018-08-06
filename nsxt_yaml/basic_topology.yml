@@ -29,6 +29,8 @@
         ova_file: "{{hostvars['localhost'].ova_file_name}}"
         deployment_size: "{{hostvars['localhost'].nsx_manager_deployment_size}}"
         role: "nsx-manager"
+        ssh_enabled: "{{hostvars['localhost'].nsx_manager_ssh_enabled}}"
+        allow_ssh_root_login: "{{hostvars['localhost'].nsx_manager_ssh_enabled}}"
 
     - name: Check manager status
       nsxt_manager_status:

@@ -191,12 +191,23 @@ class HostsFileWriter(object):
             new_line = '%s=%s' % (var_name, value.upper())
         return new_line
 
+    def modify_ssh_enabled_if_matched(self, line):
+        new_line = line
+        if line and 'ssh_enabled' in line:
+            value = line.split('=')[-1].strip(" \"'")
+            var_name = line.split('=')[0]
+            if value in ['true', 'false']:
+                value = value[0].upper() + value[1:]
+                new_line = '%s=%s' % (var_name, value)
+        return new_line
+
     def process_hosts_file(self):
         lines = []
         with open(self.in_file, 'r') as f:
             for line in f:
                 new_line = self.modify_line_if_matched(line.strip())
                 new_line = self.modify_deploy_size_if_matched(new_line)
+                new_line = self.modify_ssh_enabled_if_matched(new_line)
                 if new_line:
                     lines.append('%s\n' % new_line)
 

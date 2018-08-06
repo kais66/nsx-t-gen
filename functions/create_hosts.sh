@@ -151,9 +151,9 @@ tier0_uplink_port_subnet="$tier0_uplink_port_subnet_int"
 tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
 
 resource_reservation_off="$resource_reservation_off_int"
+nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"
 
 EOF
-
 
   if [ "$VCENTER_RP" == "null" ]; then
     export VCENTER_RP=""

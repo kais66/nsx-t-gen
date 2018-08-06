@@ -23,6 +23,7 @@ nsx_t_gen_params: &nsx-t-gen-params
   nsx_manager_assigned_hostname_int: ((nsx_manager_assigned_hostname))
   nsx_manager_root_pwd_int: ((nsx_manager_root_pwd))
   nsx_manager_deployment_size_int: ((nsx_manager_deployment_size))
+  nsx_manager_ssh_enabled_int: ((nsx_manager_ssh_enabled))
   compute_manager_username_int: ((compute_manager_username))
   compute_manager_password_int: ((compute_manager_password))
   edge_uplink_profile_vlan_int: ((edge_uplink_profile_vlan))

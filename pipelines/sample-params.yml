@@ -26,6 +26,7 @@ nsx_manager_password: Admin!23Admin
 nsx_manager_assigned_hostname: "nsxt-manager-10" # Set as FQDN, will be used also as certificate common name
 nsx_manager_root_pwd: VMware1!    # Min 8 chars, upper, lower, number, special digit
 nsx_manager_deployment_size: small   # Recommended for real barebones demo, smallest setup
+nsx_manager_ssh_enabled: true
 
 compute_manager_username: "Administrator@vsphere.local"
 compute_manager_password: "Admin!23"
