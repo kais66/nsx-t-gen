@@ -139,6 +139,15 @@
       with_items: "{{groups['controllers']}}"
       register: controller_response
 
+    - name: Install ping
+      apt:
+        name: iputils-ping
+        state: present
+
+    - name: Ping controllers
+      command: ping -c 1 -W 2 {{hostvars[item].ip}}
+      with_items: "{{groups['controllers']}}"
+
     - name: Add Edge VM
       nsxt_fabric_nodes:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
@@ -172,4 +181,8 @@
               - "{{hostvars[item].ip}}"
               prefix_length: "{{hostvars[item].prefix_length}}"
         state: "present"
+      with_items: "{{groups['edge_nodes']}}"
+
+    - name: Pint edge nodes
+      command: ping -c 1 -W 2 {{hostvars[item].ip}}
       with_items: "{{groups['edge_nodes']}}"
