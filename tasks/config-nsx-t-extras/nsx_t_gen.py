@@ -552,8 +552,6 @@ def create_external_ip_pools():
 
 
 def create_ha_switching_profile():
-  pas_tag_name   = os.getenv('nsx_t_pas_ncp_cluster_tag_int')
-
   ha_switching_profiles_defn = os.getenv('nsx_t_ha_switching_profile_spec_int', '').strip()
   if ha_switching_profiles_defn == '' or ha_switching_profiles_defn == 'null' :
     print('No yaml payload set for the NSX_T_HA_SWITCHING_PROFILE_SPEC, ignoring HASpoofguard profile section!')
@@ -581,7 +579,6 @@ def create_ha_switching_profile():
 
     global_id_map['SP:' + switching_profile_name] = switching_profile_id
     switching_profile_tags = {
-                                'ncp/cluster': pas_tag_name ,
                                 'ncp/shared_resource': 'true' ,
                                 'ncp/ha': 'true'
                               }
