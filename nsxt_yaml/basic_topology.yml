@@ -133,6 +133,7 @@
             - ip_addresses:
               - "{{hostvars[item].ip}}"
               prefix_length: "{{hostvars[item].prefix_length}}"
+            enable_ssh: "{{hostvars['localhost'].nsx_manager_ssh_enabled}}"
         clustering_config:
           clustering_type: ControlClusteringConfig
           shared_secret: "{{hostvars[item].controller_shared_secret}}"
@@ -182,6 +183,7 @@
             - ip_addresses:
               - "{{hostvars[item].ip}}"
               prefix_length: "{{hostvars[item].prefix_length}}"
+            enable_ssh: "{{hostvars['localhost'].nsx_manager_ssh_enabled}}"
         state: "present"
       with_items: "{{groups['edge_nodes']}}"
 
