@@ -109,9 +109,6 @@ cat > hosts <<-EOF
 localhost       ansible_connection=local
 
 [localhost:vars]
-sshEnabled='True'
-allowSSHRootAccess='True'
-
 vcenter_ip="$vcenter_ip_int"
 vcenter_username="$vcenter_username_int"
 vcenter_password="$vcenter_password_int"

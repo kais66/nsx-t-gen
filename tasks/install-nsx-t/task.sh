@@ -81,7 +81,7 @@ echo ""
 
 
 # Check if NSX MGR is up or not
-nsx_mgr_up_status=$(curl -s -o /dev/null -I -w "%{http_code}" -k  https://${nsx_manager_ip_int}:443/login.jsp || true)
+nsx_mgr_up_status=$(curl -s --connect-timeout 5 -o /dev/null -I -w "%{http_code}" -k  https://${nsx_manager_ip_int}:443/login.jsp || true)
 
 # Deploy the ovas if its not up
 if [ $nsx_mgr_up_status -ne 200 ]; then
