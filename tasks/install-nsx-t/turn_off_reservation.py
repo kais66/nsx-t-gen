@@ -110,10 +110,6 @@ class ResourceReservationManager(object):
     def turn_off_vm_memory_reservation(self, vm):
         # first check if memory reservation is >0
         try:
-            if vm.resourceConfig.memoryAllocation.reservation == 0:
-                print 'resource reservation already at 0, returning'
-                return
-
             if vm.config.memoryReservationLockedToMax:
                 print "turn off memoryReservationLockedToMax"
                 new_config = vim.VirtualMachineConfigSpec(
@@ -121,11 +117,14 @@ class ResourceReservationManager(object):
                 task = vm.ReconfigVM_Task(spec=new_config)
                 tasks.wait_for_tasks(self.si, [task])
 
-            new_allocation = vim.ResourceAllocationInfo(reservation=0)
-            new_config = vim.VirtualMachineConfigSpec(
-                memoryAllocation=new_allocation)
-            task = vm.ReconfigVM_Task(spec=new_config)
-            tasks.wait_for_tasks(self.si, [task])
+            if vm.resourceConfig.memoryAllocation.reservation > 0:
+                new_allocation = vim.ResourceAllocationInfo(reservation=0)
+                new_config = vim.VirtualMachineConfigSpec(
+                    memoryAllocation=new_allocation)
+                task = vm.ReconfigVM_Task(spec=new_config)
+                tasks.wait_for_tasks(self.si, [task])
+            else:
+                print 'resource reservation already at 0'
 
             self._power_on_vm_if_off(vm)
         except Exception as e:
