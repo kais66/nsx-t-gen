@@ -99,10 +99,16 @@
       when:
         - hostvars['localhost'].resource_reservation_off == "true"
 
-    - name: Turn off memory reservation for controller and edge VMs and power them on
-      command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].ip}}
+    - name: Turn off memory reservation for controllers and power them on
+      command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].hostname}}
       with_items:
         - "{{groups['controllers']}}"
+      when:
+        - hostvars['localhost'].resource_reservation_off == "true"
+
+    - name: Turn off memory reservation for edge VMs and power them on
+      command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].edge_fabric_node_name}}
+      with_items:
         - "{{groups['edge_nodes']}}"
       when:
         - hostvars['localhost'].resource_reservation_off == "true"

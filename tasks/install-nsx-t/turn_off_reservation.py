@@ -48,7 +48,7 @@ def get_args():
     parser.add_argument('-v', '--vm_list',
                         required=True,
                         action='store',
-                        help='Comma separated list of VM IP')
+                        help='Comma separated list of VM identifiers')
 
     args = parser.parse_args()
     return args
@@ -70,10 +70,10 @@ class ResourceReservationManager(object):
         atexit.register(Disconnect, si)
 
         self.content = si.RetrieveContent()
-        self.vm_ips = []
+        self.vm_ids = []
         try:
-            self.vm_ips = [vm_ip.strip() for vm_ip
-                           in args.vm_list.split(',') if vm_ip]
+            self.vm_ids = [vm_id.strip() for vm_id
+                           in args.vm_list.split(',') if vm_id]
         except Exception:
             print "Error parsing vm_list: %s" % args.vm_list
 
@@ -92,6 +92,15 @@ class ResourceReservationManager(object):
         except Exception as e:
             print e
         print "No VM found for %s" % vm_ip
+
+    def _get_vm_by_name(self, vm_name):
+        try:
+            for vm in self.vm_obj_list:
+                if vm_name.startswith(vm.name):
+                    return vm
+        except Exception as e:
+            print e
+        print "No VM found for %s" % vm_name
 
     def _power_on_vm_if_off(self, vm):
         if format(vm.runtime.powerState) == "poweredOff":
@@ -123,8 +132,8 @@ class ResourceReservationManager(object):
             print 'unable to turn off reservation due to error: %s' % e
 
     def process(self):
-        for vm_ip in self.vm_ips:
-            vm = self._get_vm_by_ip(vm_ip)
+        for vm_id in self.vm_ids:
+            vm = self._get_vm_by_name(vm_id)
             if vm:
                 # pdb.set_trace()
                 print "Trying to turn off reservation for VM %s" % vm.name
