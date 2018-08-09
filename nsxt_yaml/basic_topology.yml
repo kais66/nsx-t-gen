@@ -99,16 +99,10 @@
       when:
         - hostvars['localhost'].resource_reservation_off == "true"
 
-    - name: Turn off memory reservation for controllers and power them on
+    - name: Turn off memory reservation for controllers and edge nodes and power them on
       command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].hostname}}
       with_items:
         - "{{groups['controllers']}}"
-      when:
-        - hostvars['localhost'].resource_reservation_off == "true"
-
-    - name: Turn off memory reservation for edge VMs and power them on
-      command: python turn_off_reservation.py --host {{hostvars['localhost'].vcenter_ip}} --user {{hostvars['localhost'].vcenter_username}} --password {{hostvars['localhost'].vcenter_password}} --vm_list {{hostvars[item].edge_fabric_node_name}}
-      with_items:
         - "{{groups['edge_nodes']}}"
       when:
         - hostvars['localhost'].resource_reservation_off == "true"
@@ -164,7 +158,7 @@
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
         resource_type: "EdgeNode"
-        display_name: "{{hostvars[item].edge_fabric_node_name}}"
+        display_name: "{{hostvars[item].hostname}}"
         ip_addresses:
           - "{{hostvars[item].ip}}"
         deployment_config:
