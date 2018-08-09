@@ -101,7 +101,7 @@
         transport_zone_endpoints:
         - transport_zone_name: "{{overlay_transport_zone}}"
         - transport_zone_name: "{{vlan_transport_zone}}"
-        fabric_node_name: "{{hostvars[item].edge_fabric_node_name}}"
+        fabric_node_name: "{{hostvars[item].hostname}}"
         state: present
       with_items:
         - "{{groups['edge_nodes']}}"
