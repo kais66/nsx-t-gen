@@ -123,6 +123,17 @@
         state: present
       register: edge_cluster
 
+    # - name: Enable auto install of NSX for certain specified clusters
+    #   nsxt_compute_collection_fabric_templates:
+    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
+    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
+    #     validate_certs: False
+    #     display_name: CC_fabric_template
+    #     compute_collection_id: "6f57e5bb-a3a8-4b94-8883-5bfa6115a722:domain-c25"
+    #     auto_install_nsx: True
+    #     state: present
+
     - name: Add ESX hosts to NSX fabric
       nsxt_fabric_nodes:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
@@ -186,6 +197,19 @@
         state: present
       register: t0
 
+    - name: Add static routes
+      nsxt_logical_router_static_routes:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        logical_router_id: "{{t0.id}}"
+        next_hops:
+        - administrative_distance: '1'
+          ip_address: "{{hostvars['localhost'].tier0_uplink_next_hop_ip}}"
+        network: 0.0.0.0/0
+        state: present
+
     - name: Create VLAN logical switch
       nsxt_logical_switches:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
@@ -198,8 +222,10 @@
         transport_zone_name: "{{vlan_transport_zone}}"
         vlan: "{{vlan_logical_switch_vlan}}"
         state: present
+      when:
+        - t0.changed == true
 
-    - name: Logical Switch Port for uplink1
+    - name: Logical Switch Port for uplink_1
       nsxt_logical_ports:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
@@ -210,8 +236,10 @@
         admin_state: UP
         state: present
       register: vlan_lsp
+      when:
+        - t0.changed == true
 
-    - name: Create logical router port
+    - name: Create logical router port for uplink1
       nsxt_logical_router_ports:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
@@ -230,44 +258,77 @@
         edge_cluster_member_index:
           - 0
         state: present
+      register: uplink_lrp
+      when:
+        - t0.changed == true
 
-    - name: Add static routes
-      nsxt_logical_router_static_routes:
+    - name: Logical Switch Port for uplink_2
+      nsxt_logical_ports:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
-        logical_router_id: "{{t0.id}}"
-        next_hops:
-        - administrative_distance: '1'
-          ip_address: "{{hostvars['localhost'].tier0_uplink_next_hop_ip}}"
-        network: 0.0.0.0/0
+        display_name: lsp_for_uplink_2
+        logical_switch_name: "{{vlan_logical_switch}}"
+        admin_state: UP
         state: present
+      register: vlan_lsp_2
+      when:
+        - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
+        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
+        - t0.changed == true
 
-    # - name: NSX-T T0 Logical Router
-    #   nsxt_logical_routers:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     resource_type: LogicalRouter
-    #     description: "NSX-T T0 Logical Router"
-    #     display_name: "{{hostvars['localhost'].tier0_router_name}}"
-    #     edge_cluster_name: "{{ edge_cluster_name }}"
-    #     router_type: TIER0
-    #     high_availability_mode: ACTIVE_STANDBY
-    #     advanced_config:
-    #       ha_vip_configs:
-    #       - enabled: True
-    #         ha_vip_subnets:
-    #         - active_vip_addresses: 10.13.12.103
-    #           prefix_length: 27
-    #         redundant_uplink_port_ids:
-    #         - "{{vlan_lsp.id}}"
-    #     state: present
-    #   register: t0
+    - name: Create logical router port for uplink2
+      nsxt_logical_router_ports:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: t0_uplink_2
+        resource_type: LogicalRouterUpLinkPort
+        logical_router_id: "{{t0.id}}"
+        linked_logical_switch_port_id:
+          target_type: LogicalPort
+          target_id: "{{vlan_lsp_2.id}}"
+        subnets:
+        - ip_addresses:
+          - "{{hostvars['localhost'].tier0_uplink_port_ip_2}}"
+          prefix_length: "{{hostvars['localhost'].tier0_uplink_port_subnet}}"
+        edge_cluster_member_index:
+          - 1
+        state: present
+      register: uplink_lrp_2
+      when:
+        - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
+        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
+        - t0.changed == true
 
-## TODO: need logical router uplink port module support
-## nsxt_t0_uplink, nsxt_t0_ha_vip, nsxt_static_route
-
-############################
+    - name: HA VIP for T0 Router
+      nsxt_logical_routers:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        resource_type: LogicalRouter
+        description: "NSX-T T0 Logical Router"
+        display_name: "{{hostvars['localhost'].tier0_router_name}}"
+        edge_cluster_name: "{{ edge_cluster_name }}"
+        router_type: TIER0
+        high_availability_mode: ACTIVE_STANDBY
+        advanced_config:
+          ha_vip_configs:
+          - enabled: True
+            ha_vip_subnets:
+            - active_vip_addresses:
+              - "{{hostvars['localhost'].tier0_ha_vip}}"
+              prefix_length: "{{hostvars['localhost'].tier0_uplink_port_subnet}}"
+            redundant_uplink_port_ids:
+            - "{{uplink_lrp.id}}"
+            - "{{uplink_lrp_2.id}}"
+        state: present
+      when:
+        - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
+        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
+        - hostvars['localhost'].tier0_ha_vip is defined
+        - hostvars['localhost'].tier0_ha_vip != "null"
+        - t0.changed == true

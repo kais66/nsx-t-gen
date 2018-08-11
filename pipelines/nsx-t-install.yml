@@ -75,6 +75,8 @@ nsx_t_gen_params: &nsx-t-gen-params
   tier0_uplink_port_ip_int: ((tier0_uplink_port_ip))
   tier0_uplink_port_subnet_int: ((tier0_uplink_port_subnet))
   tier0_uplink_next_hop_ip_int: ((tier0_uplink_next_hop_ip))
+  tier0_uplink_port_ip_2_int: ((tier0_uplink_port_ip_2))
+  tier0_ha_vip_int: ((tier0_ha_vip))
 
   nsx_t_t1router_logical_switches_spec_int: ((nsx_t_t1router_logical_switches_spec))
   nsx_t_ha_switching_profile_spec_int: ((nsx_t_ha_switching_profile_spec))

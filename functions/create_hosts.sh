@@ -146,6 +146,8 @@ tier0_router_name="$tier0_router_name_int"
 tier0_uplink_port_ip="$tier0_uplink_port_ip_int"
 tier0_uplink_port_subnet="$tier0_uplink_port_subnet_int"
 tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
+tier0_uplink_port_ip_2="$tier0_uplink_port_ip_2_int"
+tier0_ha_vip="$tier0_ha_vip_int"
 
 resource_reservation_off="$resource_reservation_off_int"
 nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"

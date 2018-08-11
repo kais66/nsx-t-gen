@@ -88,6 +88,8 @@ tier0_router_name: "DefaultT0Router"
 tier0_uplink_port_ip: 172.60.0.1
 tier0_uplink_port_subnet: 24
 tier0_uplink_next_hop_ip: 10.13.12.1
+tier0_uplink_port_ip_2: 172.60.0.100
+tier0_ha_vip: 172.60.0.200
 
 # nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
 # nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
