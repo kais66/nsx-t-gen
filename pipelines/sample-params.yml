@@ -81,7 +81,7 @@ esx_ips: 10.40.1.211
 esx_os_version: "6.5.0"
 esx_root_password: "ca$hc0w"
 esx_hostname_prefix: "esx-host"
-esx_available_vmnic: "vmnic1"
+esx_available_vmnic: "vmnic1,vmnic3"
 
 # Tier 0 router
 tier0_router_name: "DefaultT0Router"

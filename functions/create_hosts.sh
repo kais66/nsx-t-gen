@@ -94,7 +94,7 @@ EOF
   cat >> esx_hosts <<-EOF
 [esx_hosts:vars]
 esx_os_version=${esx_os_version_int}
-available_vmnic=${esx_available_vmnic_int}
+available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
 EOF
 }
 

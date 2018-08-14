@@ -44,3 +44,11 @@ vlan_logical_switch: "uplink-vlan-ls"
 vlan_logical_switch_vlan: 0
 t0_uplink_port_ip: 172.60.0.1
 t0_uplink_port_subnet: 24
+
+single_pnic_list:
+- device_name: "{{hostvars[groups['esx_hosts'][0]].available_vmnic[0]}}"
+  uplink_name: "{{uplink_name}}"
+
+extra_pnics: "{{ [] if hostvars[groups['esx_hosts'][0]].available_vmnic|length == 1 else [{'device_name': hostvars[groups['esx_hosts'][0]].available_vmnic[1], 'uplink_name': 'uplink-2' }]}}"
+
+pnic_list: "{{single_pnic_list + extra_pnics}}"
