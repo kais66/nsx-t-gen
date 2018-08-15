@@ -49,7 +49,6 @@ controller_ips: 10.40.0.21
 controller_default_gateway: 10.40.1.253
 controller_ip_prefix_length: 23
 controller_hostname_prefix: controller # no spaces, Generated name: controller_1.corp.local.io
-controller_vmname_prefix: controller-vm # Generated edge host name would be "NSX-T controller-vm_1"
 controller_cli_password: "Admin!23Admin" # Min 8 chars, upper, lower, num, special char
 controller_root_password: "Admin!23Admin"
 controller_deployment_size: "SMALL"
@@ -64,7 +63,6 @@ edge_ips: 10.40.0.24 # comma separated ips, requires min 2 for HA
 edge_default_gateway: 10.40.1.253
 edge_ip_prefix_length: 23
 edge_hostname_prefix: nsx-t-edge
-edge_fabric_name_prefix: EdgeNode
 edge_transport_node_prefix: edge-transp-node
 edge_cli_password: "Admin!23Admin"
 edge_root_password: "Admin!23Admin"

@@ -53,7 +53,7 @@ function create_edge_hosts {
     edge_ip=${edge_ips_int[i]}
     count=$((i+1))
     hostname="${edge_hostname_prefix_int}-${count}.${dns_domain_int}"
-    edge_host="edge-${count} ip=$edge_ip hostname=${hostname} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int edge_fabric_node_name=${edge_fabric_name_prefix_int}-${count}  transport_node_name=${edge_transport_node_prefix_int}-${count}"
+    edge_host="edge-${count} ip=$edge_ip hostname=${hostname} default_gateway=$edge_default_gateway_int prefix_length=$edge_ip_prefix_length_int transport_node_name=${edge_transport_node_prefix_int}-${count}"
     # for param in "${per_edge_params[@]}"; do
     #   # test if a single value is provided or a list is
     #   param_val=($(echo "${!param}" | sed -e 's/,/ /g'))
