@@ -146,16 +146,19 @@ tier0_router_name="$tier0_router_name_int"
 tier0_uplink_port_ip="$tier0_uplink_port_ip_int"
 tier0_uplink_port_subnet="$tier0_uplink_port_subnet_int"
 tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
-tier0_uplink_port_ip_2="$tier0_uplink_port_ip_2_int"
-tier0_ha_vip="$tier0_ha_vip_int"
-compute_manager_2_username="$compute_manager_2_username_int"
-compute_manager_2_password="$compute_manager_2_password_int"
-compute_manager_2_vcenter_ip="$compute_manager_2_vcenter_ip_int"
 
 resource_reservation_off="$resource_reservation_off_int"
 nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"
 
 EOF
+
+  optional_params=("tier0_ha_vip_int" "tier0_uplink_port_ip_2_int" "compute_manager_2_username_int" "compute_manager_2_password_int" "compute_manager_2_vcenter_ip_int")
+  for param in "${optional_params[@]}"; do
+    param_val="${!param}"
+    if [[ $param_val != "" && $param_val != "null" ]]; then
+      echo "${param::-4}=${param_val}" >> hosts
+    fi
+  done
 
   if [ "$VCENTER_RP" == "null" ]; then
     export VCENTER_RP=""

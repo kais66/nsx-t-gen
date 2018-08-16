@@ -123,16 +123,18 @@
         state: present
       register: edge_cluster
 
-    # - name: Enable auto install of NSX for certain specified clusters
-    #   nsxt_compute_collection_fabric_templates:
-    #     hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
-    #     username: "{{hostvars['localhost'].nsx_manager_username}}"
-    #     password: "{{hostvars['localhost'].nsx_manager_password}}"
-    #     validate_certs: False
-    #     display_name: CC_fabric_template
-    #     compute_collection_id: "6f57e5bb-a3a8-4b94-8883-5bfa6115a722:domain-c25"
-    #     auto_install_nsx: True
-    #     state: present
+    - name: Enable auto install of NSX for certain specified clusters
+      nsxt_compute_collection_fabric_templates:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: CC_fabric_template
+        compute_manager_name:
+        cluster_name:
+        compute_collection_id: "6f57e5bb-a3a8-4b94-8883-5bfa6115a722:domain-c25"
+        auto_install_nsx: True
+        state: present
 
     - name: Add ESX hosts to NSX fabric
       nsxt_fabric_nodes:
@@ -273,7 +275,6 @@
       register: vlan_lsp_2
       when:
         - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
-        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
         - t0.changed == true
 
     - name: Create logical router port for uplink2
@@ -298,7 +299,6 @@
       register: uplink_lrp_2
       when:
         - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
-        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
         - t0.changed == true
 
     - name: HA VIP for T0 Router
@@ -326,7 +326,5 @@
         state: present
       when:
         - hostvars['localhost'].tier0_uplink_port_ip_2 is defined
-        - hostvars['localhost'].tier0_uplink_port_ip_2 != "null"
         - hostvars['localhost'].tier0_ha_vip is defined
-        - hostvars['localhost'].tier0_ha_vip != "null"
         - t0.changed == true
