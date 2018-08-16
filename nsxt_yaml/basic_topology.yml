@@ -94,6 +94,27 @@
         state: present
       register: compute_manager
 
+    # TODO: change var names
+    - name: Deploy compute manager 2
+      nsxt_fabric_compute_managers:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: "vCenter-compute-manager_2"
+        server: "{{hostvars['localhost'].compute_manager_2_vcenter_ip}}" # vCenter IP
+        origin_type: vCenter
+        credential:
+          credential_type: UsernamePasswordLoginCredential
+          username: "{{hostvars['localhost'].compute_manager_2_username}}"
+          password: "{{hostvars['localhost'].compute_manager_2_password}}"
+        state: present
+      register: compute_manager_2_compute_cluster
+      when:
+        - hostvars['localhost'].compute_manager_2_vcenter_ip != "null"
+        - hostvars['localhost'].compute_manager_2_username != "null"
+        - hostvars['localhost'].compute_manager_2_password != "null"
+
     - name: Install pyvmomi tools dependency
       shell: "cd /tmp; git clone https://github.com/vmware/pyvmomi-community-samples.git; cp -r pyvmomi-community-samples/samples/tools /usr/local/lib/python2.7/dist-packages"
       when:

@@ -89,6 +89,11 @@ tier0_uplink_next_hop_ip: 10.13.12.1
 tier0_uplink_port_ip_2: 172.60.0.100
 tier0_ha_vip: 172.60.0.200
 
+# compute manager for the compute cluster (2nd vCenter)
+compute_manager_2_vcenter_ip: "null"
+compute_manager_2_username: "null"
+compute_manager_2_password: "null"
+
 ############################
 # MP resource spec
 #############################
