@@ -89,68 +89,9 @@ tier0_uplink_next_hop_ip: 10.13.12.1
 tier0_uplink_port_ip_2: 172.60.0.100
 tier0_ha_vip: 172.60.0.200
 
-# nsx_t_edge_portgroup_ext: EDIT_ME_vlan-name-for-uplink     # For external routing
-# nsx_t_edge_portgroup_transport: EDIT_ME_vlan-name-for-TEP  # For TEP/overlay
-# Edge network interfaces
-# Network1 and Network4 are for mgmt and not used for uplink
-# Network2 is for external uplink
-# Network3 is for overlay
-# Change only if necessary
-# nsx_t_edge_overlay_interface: fp-eth1 # Wired to Network3
-# nsx_t_edge_uplink_interface: fp-eth0  # Wired to Network2
-
-# Memory reservation is turned ON by default with the NSX-T OVAs.
-# This would mean a deployment of an edge or a mgr would reserve full memory
-# leading to memory constraints
-# if nsx_t_keep_reservation to true  - would keep reservation ON, recommended for production setups.
-# if nsx_t_keep_reservation to false - would turn reservation OFF, recommended for POCs, smaller setups.
-# nsx_t_keep_reservation: true # for Prod setup
-
-# For Edge External uplink
-# Check with network admin if its tagged or untagged
-# nsx_t_transport_vlan: 0
-
-
 ############################
 # MP resource spec
 #############################
-
-# # Configs for T0Router (only one per run), T1Routers, Logical switches and tags...
-# # Make sure the ncp/cluster tag matches the one defined at the top level.
-# # Expects to use atleast 2 edge instances for HA that need to be installed
-# nsx_t_t0router_spec: |
-#   t0_router:
-#     name: DefaultT0Router
-#     ha_mode: 'ACTIVE_STANDBY'
-#     # Specify the edges to be used for hosting the T0Router instance
-#     edge_indexes:
-#       # Index starts from 1 -> denoting nsx-t-edge-01
-#       primary: 1   # Index for primary edge to be used
-#       secondary: 2 # Index for secondary edge to be used
-#     vip: 10.13.12.103/27
-#     ip1: 10.13.12.101/27
-#     ip2: 10.13.12.102/27
-#     vlan_uplink: 0
-#     static_route:
-#       next_hop: 10.13.12.1
-#       network: 0.0.0.0/0
-#       admin_distance: 1
-#     tags:
-#       ncp/cluster: 'pas1' # Should match the top level ncp/cluster tag value
-#       ncp/shared_resource: 'true' # required for PKS
-#       testtag: 'testpas1'
-
-
-########### Following are what's used in
-# T1 Logical Router with associated logical switches
-# Add additional or comment off unnecessary t1 routers and switches as needed
-# Can have 3 different setups:
-# 1: One shared mgmt T1 Router and infra logical switch for both PKS & PAS
-# 2: One mgmt T1 Router and infra logical switch for either PKS or PAS..
-#    Comment off the T1 router not required
-# 3: Separate mgmt T1 Router and infra logical switch for each PKS and PAS..
-#    Add additional T1Router-Mgmt2 as needed with its infra logical switch
-# Name the routers and logical switches and cidrs differently to avoid conflict
 
 nsx_t_t1router_logical_switches_spec: |
   t1_routers:
