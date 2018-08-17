@@ -106,7 +106,7 @@
       with_items:
         - "{{groups['edge_nodes']}}"
 
-    - name: define edge cluster members
+    - name: Define edge cluster members
       set_fact:
         edge_members: "{{edge_members|default([]) + [ { 'transport_node_name': hostvars[item].transport_node_name } ] }}"
       with_items:
@@ -130,10 +130,40 @@
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
         display_name: CC_fabric_template
-        compute_manager_name:
-        cluster_name:
-        compute_collection_id: "6f57e5bb-a3a8-4b94-8883-5bfa6115a722:domain-c25"
+        compute_manager_name: "{{compute_manager_name}}"
+        cluster_name: "{{item}}"
         auto_install_nsx: True
+        state: present
+      with_items:
+        - "{{hostvars['localhost'].clusters_to_install_nsx}}"
+
+    - name: Define cm_and_vc_cluster_list
+      set_fact:
+        cm_and_vc_cluster_list: "{{cm_and_vc_cluster_list|default([]) + [ { 'compute_manager_name': compute_manager_name, 'cluster_name': item } ] }}"
+      with_items:
+        - "{{hostvars['localhost'].clusters_to_install_nsx}}"
+
+    - name: Create compute collection transport tempalte
+      nsxt_compute_collection_transport_templates:
+        hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
+        username: "{{hostvars['localhost'].nsx_manager_username}}"
+        password: "{{hostvars['localhost'].nsx_manager_password}}"
+        validate_certs: False
+        display_name: transport_template
+        compute_collections: "{{cm_and_vc_cluster_list}}"
+        host_switch_spec:
+            resource_type: StandardHostSwitchSpec
+            host_switches:
+            - host_switch_profiles:
+              - name: "{{host_uplink_prof}}"
+                type: UplinkHostSwitchProfile
+              host_switch_name: "{{overlay_host_switch}}"
+              pnics: "{{pnic_list}}"
+              ip_assignment_spec:
+                resource_type: StaticIpPoolSpec
+                ip_pool_name: "{{hostvars['localhost'].vtep_ip_pool_name}}"
+        transport_zone_endpoints:
+        - transport_zone_name: "{{overlay_transport_zone}}"
         state: present
 
     - name: Add ESX hosts to NSX fabric

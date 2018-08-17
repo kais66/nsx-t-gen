@@ -80,6 +80,10 @@ EOF
 }
 
 function create_esx_hosts {
+  if [ $esx_ips_int == "" ] || [ $esx_ips_int == "null" ]; then
+    return
+  fi
+
   count=1
   echo "[esx_hosts]" > esx_hosts
   for esx_ip in $(echo "$esx_ips_int" | sed -e 's/,/ /g')
@@ -94,7 +98,6 @@ EOF
   cat >> esx_hosts <<-EOF
 [esx_hosts:vars]
 esx_os_version=${esx_os_version_int}
-available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
 EOF
 }
 
@@ -150,6 +153,9 @@ tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
 resource_reservation_off="$resource_reservation_off_int"
 nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"
 
+available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
+clusters_to_install_nsx=["${clusters_to_install_nsx_int//,/\",\"}"]
+
 EOF
 
   optional_params=("tier0_ha_vip_int" "tier0_uplink_port_ip_2_int" "compute_manager_2_username_int" "compute_manager_2_password_int" "compute_manager_2_vcenter_ip_int")
@@ -159,10 +165,6 @@ EOF
       echo "${param::-4}=${param_val}" >> hosts
     fi
   done
-
-  if [ "$VCENTER_RP" == "null" ]; then
-    export VCENTER_RP=""
-  fi
 
   create_edge_hosts
   create_controller_hosts

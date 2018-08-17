@@ -84,7 +84,7 @@
         username: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
-        display_name: "vCenter-compute-manager"
+        display_name: "{{compute_manager_name}}"
         server: "{{hostvars['localhost'].vcenter_ip}}" # vCenter IP
         origin_type: vCenter
         credential:
@@ -101,7 +101,7 @@
         username: "{{hostvars['localhost'].nsx_manager_username}}"
         password: "{{hostvars['localhost'].nsx_manager_password}}"
         validate_certs: False
-        display_name: "vCenter-compute-manager_2"
+        display_name: "{{compute_manager_2_name}}"
         server: "{{hostvars['localhost'].compute_manager_2_vcenter_ip}}"
         origin_type: vCenter
         credential:
