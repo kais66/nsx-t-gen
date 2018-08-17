@@ -76,6 +76,7 @@ vc_management_network_for_edge: "VM Network"
 
 # ESX hosts
 clusters_to_install_nsx: 2-cluster-732
+per_cluster_vlans: "0"
 esx_ips:
 esx_os_version: "6.5.0"
 esx_root_password: "ca$hc0w"

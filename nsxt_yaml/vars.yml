@@ -13,29 +13,34 @@ transportzones:
   transport_type: "VLAN"
   host_switch_name: "{{vlan_host_switch}}"
 
+vtep_ip_pool_name: tep-ip-pool
+
 edge_uplink_prof: edge-single-uplink-prof
 host_uplink_prof: host-overlay-uplink-prof
 
-uplink_name: "uplink-1"
+uplink_1_name: "uplink-1"
+uplink_2_name: "uplink-2"
+common_teaming_spec_for_esx:
+  active_list:
+  - uplink_name: "{{uplink_1_name}}"
+    uplink_type: PNIC
+  standby_list:
+  - uplink_name: "{{uplink_2_name}}"
+    uplink_type: PNIC
+  policy: FAILOVER_ORDER
+
 uplink_profiles:
 - display_name: "{{edge_uplink_prof}}"
   description: "Edge Uplink Profile"
   teaming:
     active_list:
-    - uplink_name: "{{uplink_name}}"
+    - uplink_name: "{{uplink_1_name}}"
       uplink_type: PNIC
     policy: FAILOVER_ORDER
   transport_vlan: "{{hostvars['localhost'].edge_uplink_profile_vlan}}"
 - display_name: "{{host_uplink_prof}}"
   description: "Host Overlay Profile"
-  teaming:
-    active_list:
-    - uplink_name: "{{uplink_name}}"
-      uplink_type: PNIC
-    standby_list:
-    - uplink_name: "uplink-2"
-      uplink_type: PNIC
-    policy: FAILOVER_ORDER
+  teaming: "{{common_teaming_spec_for_esx}}"
   transport_vlan: "{{hostvars['localhost'].esxi_uplink_profile_vlan}}"
 
 edge_cluster_name: "edge-cluster-1"
@@ -47,9 +52,9 @@ t0_uplink_port_subnet: 24
 
 single_pnic_list:
 - device_name: "{{hostvars['localhost'].available_vmnic[0]}}"
-  uplink_name: "{{uplink_name}}"
+  uplink_name: "{{uplink_1_name}}"
 
-extra_pnics: "{{ [] if hostvars['localhost'].available_vmnic|length == 1 else [{'device_name': hostvars['localhost'].available_vmnic[1], 'uplink_name': 'uplink-2' }]}}"
+extra_pnics: "{{ [] if hostvars['localhost'].available_vmnic|length == 1 else [{'device_name': hostvars['localhost'].available_vmnic[1], 'uplink_name': uplink_2_name }]}}"
 
 pnic_list: "{{single_pnic_list + extra_pnics}}"
 

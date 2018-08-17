@@ -135,7 +135,6 @@ compute_manager_username="$compute_manager_username_int"
 compute_manager_password="$compute_manager_password_int"
 edge_uplink_profile_vlan="$edge_uplink_profile_vlan_int"
 esxi_uplink_profile_vlan="$esxi_uplink_profile_vlan_int"
-vtep_ip_pool_name="$vtep_ip_pool_name_int"
 vtep_ip_pool_cidr="$vtep_ip_pool_cidr_int"
 vtep_ip_pool_gateway="$vtep_ip_pool_gateway_int"
 vtep_ip_pool_start="$vtep_ip_pool_start_int"
@@ -153,6 +152,10 @@ available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
 EOF
   if [[ $clusters_to_install_nsx_int != "" && $clusters_to_install_nsx_int != "null" ]]; then
     echo "clusters_to_install_nsx=[\"${clusters_to_install_nsx_int//,/\",\"}\"]" >> hosts
+  fi
+
+  if [[ $per_cluster_vlans_int != "" && $per_cluster_vlans_int != "null" ]]; then
+    echo "per_cluster_vlans=[\"${per_cluster_vlans_int//,/\",\"}\"]" >> hosts
   fi
 
   optional_params=("tier0_ha_vip_int" "tier0_uplink_port_ip_2_int" "compute_manager_2_username_int" "compute_manager_2_password_int" "compute_manager_2_vcenter_ip_int")
