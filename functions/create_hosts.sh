@@ -80,10 +80,6 @@ EOF
 }
 
 function create_esx_hosts {
-  if [ $esx_ips_int == "" ] || [ $esx_ips_int == "null" ]; then
-    return
-  fi
-
   count=1
   echo "[esx_hosts]" > esx_hosts
   for esx_ip in $(echo "$esx_ips_int" | sed -e 's/,/ /g')
@@ -168,14 +164,17 @@ EOF
 
   create_edge_hosts
   create_controller_hosts
-  create_esx_hosts
 
   cat ctrl_vms >> hosts
   echo "" >> hosts
   cat edge_vms >> hosts
-  echo "" >> hosts
-  cat esx_hosts >> hosts
 
-  rm ctrl_vms edge_vms esx_hosts
+  rm ctrl_vms edge_vms
 
+  if [ $esx_ips_int != "" ] && [ $esx_ips_int != "null" ]; then
+    create_esx_hosts
+    echo "" >> hosts
+    cat esx_hosts >> hosts
+    rm esx_hosts
+  fi
 }

@@ -75,7 +75,8 @@ vc_overlay_network_for_edge: "VM Network"
 vc_management_network_for_edge: "VM Network"
 
 # ESX hosts
-esx_ips: 10.40.1.211
+clusters_to_install_nsx: 2-cluster-732
+esx_ips:
 esx_os_version: "6.5.0"
 esx_root_password: "ca$hc0w"
 esx_hostname_prefix: "esx-host"

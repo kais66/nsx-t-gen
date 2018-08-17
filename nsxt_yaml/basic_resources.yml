@@ -184,6 +184,8 @@
         state: present
       with_items:
         - "{{groups['esx_hosts']}}"
+      when:
+        - groups['esx_hosts'] is defined
 
     - name: Create transport node for ESX hosts
       nsxt_transport_nodes:
@@ -211,6 +213,8 @@
         state: present
       with_items:
         - "{{groups['esx_hosts']}}"
+      when:
+        - groups['esx_hosts'] is defined
 
     - name: NSX-T T0 Logical Router
       nsxt_logical_routers:
