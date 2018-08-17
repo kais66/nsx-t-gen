@@ -150,9 +150,10 @@ resource_reservation_off="$resource_reservation_off_int"
 nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"
 
 available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
-clusters_to_install_nsx=["${clusters_to_install_nsx_int//,/\",\"}"]
-
 EOF
+  if [[ $clusters_to_install_nsx_int != "" && $clusters_to_install_nsx_int != "null" ]]; then
+    echo "clusters_to_install_nsx=[\"${clusters_to_install_nsx_int//,/\",\"}\"]" >> hosts
+  fi
 
   optional_params=("tier0_ha_vip_int" "tier0_uplink_port_ip_2_int" "compute_manager_2_username_int" "compute_manager_2_password_int" "compute_manager_2_vcenter_ip_int")
   for param in "${optional_params[@]}"; do
@@ -171,7 +172,7 @@ EOF
 
   rm ctrl_vms edge_vms
 
-  if [ $esx_ips_int != "" ] && [ $esx_ips_int != "null" ]; then
+  if [[ $esx_ips_int != ""  &&  $esx_ips_int != "null" ]]; then
     create_esx_hosts
     echo "" >> hosts
     cat esx_hosts >> hosts

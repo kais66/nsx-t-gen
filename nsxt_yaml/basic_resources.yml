@@ -123,7 +123,7 @@
         state: present
       register: edge_cluster
 
-    - name: Enable auto install of NSX for certain specified clusters
+    - name: Enable auto install of NSX for specified clusters
       nsxt_compute_collection_fabric_templates:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
@@ -136,14 +136,20 @@
         state: present
       with_items:
         - "{{hostvars['localhost'].clusters_to_install_nsx}}"
+      register: auto_install_nsx_result
+      when:
+        - hostvars['localhost'].clusters_to_install_nsx is defined
 
     - name: Define cm_and_vc_cluster_list
       set_fact:
         cm_and_vc_cluster_list: "{{cm_and_vc_cluster_list|default([]) + [ { 'compute_manager_name': compute_manager_name, 'cluster_name': item } ] }}"
       with_items:
         - "{{hostvars['localhost'].clusters_to_install_nsx}}"
+      when:
+        - hostvars['localhost'].clusters_to_install_nsx is defined
+        - auto_install_nsx_result.changed == true
 
-    - name: Create compute collection transport tempalte
+    - name: Enable auto creation of transport nodes for specified clusters
       nsxt_compute_collection_transport_templates:
         hostname: "{{hostvars['localhost'].nsx_manager_ip}}"
         username: "{{hostvars['localhost'].nsx_manager_username}}"
@@ -165,6 +171,9 @@
         transport_zone_endpoints:
         - transport_zone_name: "{{overlay_transport_zone}}"
         state: present
+      when:
+        - hostvars['localhost'].clusters_to_install_nsx is defined
+        - auto_install_nsx_result.changed == true
 
     - name: Add ESX hosts to NSX fabric
       nsxt_fabric_nodes:

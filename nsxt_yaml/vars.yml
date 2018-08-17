@@ -49,7 +49,7 @@ single_pnic_list:
 - device_name: "{{hostvars['localhost'].available_vmnic[0]}}"
   uplink_name: "{{uplink_name}}"
 
-extra_pnics: "{{ [] if hostvars['localhost'].available_vmnic|length == 1 else [{'device_name': hostvars[groups['localhost'].available_vmnic[1], 'uplink_name': 'uplink-2' }]}}"
+extra_pnics: "{{ [] if hostvars['localhost'].available_vmnic|length == 1 else [{'device_name': hostvars['localhost'].available_vmnic[1], 'uplink_name': 'uplink-2' }]}}"
 
 pnic_list: "{{single_pnic_list + extra_pnics}}"
 
