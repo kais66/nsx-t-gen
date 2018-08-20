@@ -97,7 +97,21 @@ esx_os_version=${esx_os_version_int}
 EOF
 }
 
-## TODO: convert = notation to : notation when specifiying variables
+function set_list_var_and_strip_whitespaces {
+  list_var_value=${!1}
+  if [[ $list_var_value == "" || $list_var_value == "null" ]]; then
+    return
+  fi
+  list_var_value=$(echo $list_var_value | sed '
+    s/^ *//     # remove leading whitespace
+    s/ *$//     # remove trailing whitespace
+    s/ *,/,/g   # remove whitespace before commas
+    s/, */,/g   # remove whitespace after commas
+    s/,/","/g   # put quotes around
+    s/.*/["&"]/ # bracket & quotes around everything')
+  echo "${1::-4}=$list_var_value" >> $2
+}
+
 function create_hosts {
 
 # TODO: set nsx manager fqdn
@@ -147,16 +161,11 @@ tier0_uplink_next_hop_ip="$tier0_uplink_next_hop_ip_int"
 
 resource_reservation_off="$resource_reservation_off_int"
 nsx_manager_ssh_enabled="$nsx_manager_ssh_enabled_int"
-
-available_vmnic=["${esx_available_vmnic_int//,/\",\"}"]
 EOF
-  if [[ $clusters_to_install_nsx_int != "" && $clusters_to_install_nsx_int != "null" ]]; then
-    echo "clusters_to_install_nsx=[\"${clusters_to_install_nsx_int//,/\",\"}\"]" >> hosts
-  fi
 
-  if [[ $per_cluster_vlans_int != "" && $per_cluster_vlans_int != "null" ]]; then
-    echo "per_cluster_vlans=[\"${per_cluster_vlans_int//,/\",\"}\"]" >> hosts
-  fi
+  set_list_var_and_strip_whitespaces esx_available_vmnic_int hosts
+  set_list_var_and_strip_whitespaces clusters_to_install_nsx_int hosts
+  set_list_var_and_strip_whitespaces per_cluster_vlans_int hosts
 
   optional_params=("tier0_ha_vip_int" "tier0_uplink_port_ip_2_int" "compute_manager_2_username_int" "compute_manager_2_password_int" "compute_manager_2_vcenter_ip_int")
   for param in "${optional_params[@]}"; do

@@ -51,10 +51,10 @@ t0_uplink_port_ip: 172.60.0.1
 t0_uplink_port_subnet: 24
 
 single_pnic_list:
-- device_name: "{{hostvars['localhost'].available_vmnic[0]}}"
+- device_name: "{{hostvars['localhost'].esx_available_vmnic[0]}}"
   uplink_name: "{{uplink_1_name}}"
 
-extra_pnics: "{{ [] if hostvars['localhost'].available_vmnic|length == 1 else [{'device_name': hostvars['localhost'].available_vmnic[1], 'uplink_name': uplink_2_name }]}}"
+extra_pnics: "{{ [] if hostvars['localhost'].esx_available_vmnic|length == 1 else [{'device_name': hostvars['localhost'].esx_available_vmnic[1], 'uplink_name': uplink_2_name }]}}"
 
 pnic_list: "{{single_pnic_list + extra_pnics}}"
 
