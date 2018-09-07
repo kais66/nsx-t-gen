@@ -136,7 +136,6 @@ resources:
     # uri: https://github.com/vmware/ansible-for-nsxt.git
     uri: git@github.com:vmware/ansible-for-nsxt.git
     branch: master
-    private_key: ((ansible_for_nsxt_key))
 
 # Download NSX-T 2.1 bits from
 # https://my.vmware.com/group/vmware/details?downloadGroup=NSX-T-210&productId=673
